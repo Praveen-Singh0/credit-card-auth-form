@@ -268,7 +268,10 @@ export default function Home() {
 
           <div>
             <h4 className="font-bold">Travelers Name</h4>
-            <p>Traveler First name and Last name must be entered during the time of reservation exactly as it appears on your Government issued Identification, be it your passport, Driving License or other acceptable forms of identification depending on your type of travel (Domestic/International). Name once entered will not be changed. Some 'Typo Error' (Name Correction) is allowed, depending on Airline Terms of Use, & charges would be applicable according as per airline policy.</p>
+           <p>
+  Traveler First name and Last name must be entered during the time of reservation exactly as it appears on your Government issued Identification, be it your passport, Driving License or other acceptable forms of identification depending on your type of travel (Domestic/International). Name once entered will not be changed. Some &apos;Typo Error&apos; (Name Correction) is allowed, depending on Airline Terms of Use, & charges would be applicable according as per airline policy.
+</p>
+
           </div>
 
           <div>
