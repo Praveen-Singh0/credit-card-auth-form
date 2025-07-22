@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const emailRoutes = require('./routes/emailRoutes');
 
 const app = express();
-const port = 3001;
+const port = 3081;
 
 app.use(cors());
 app.use(bodyParser.json());
