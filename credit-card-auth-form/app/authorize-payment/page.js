@@ -1,5 +1,6 @@
-
 'use client';
+
+export const dynamic = 'force-dynamic'; // 🔴 This tells Next.js to skip pre-rendering
 
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -15,6 +16,11 @@ export default function AuthorizePaymentPage() {
     }
   }, [token]);
 
+  if (!token) {
+  return <p>Loading...</p>;
+}
+
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center text-center">
       <div className="bg-white p-10 rounded-lg shadow-lg">
@@ -24,4 +30,4 @@ export default function AuthorizePaymentPage() {
       </div>
     </div>
   );
-} 
+}
