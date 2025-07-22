@@ -1,16 +1,19 @@
 'use client';
 
+
 import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export default function AuthorizePaymentPage() {
-
-  const token = "testing"
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
 
   useEffect(() => {
+    if (token) {
       // Redirect to backend for processing
-      window.location.href = `https://api.easyflightnow.com/authorize-payment?token=${token}`;
-    
-  }, []);
+      window.location.href = `http://localhost:3001/authorize-payment?token=${token}`;
+    }
+  }, [token]);
 
   if (!token) {
   return <p>Loading...</p>;
