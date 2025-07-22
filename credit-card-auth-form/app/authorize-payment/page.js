@@ -1,20 +1,16 @@
 'use client';
 
-export const dynamic = 'force-dynamic'; // 🔴 This tells Next.js to skip pre-rendering
-
 import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 
 export default function AuthorizePaymentPage() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+
+  const token = "testing"
 
   useEffect(() => {
-    if (token) {
       // Redirect to backend for processing
       window.location.href = `http://localhost:3001/authorize-payment?token=${token}`;
-    }
-  }, [token]);
+    
+  }, []);
 
   if (!token) {
   return <p>Loading...</p>;
