@@ -8,7 +8,7 @@ export default function AuthorizePaymentPage() {
 
   useEffect(() => {
       // Redirect to backend for processing
-      window.location.href = `http://localhost:3001/authorize-payment?token=${token}`;
+      window.location.href = `https://api.easyflightnow.com/authorize-payment?token=${token}`;
     
   }, []);
 

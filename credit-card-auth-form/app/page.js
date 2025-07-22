@@ -52,7 +52,7 @@ export default function Home() {
     e.preventDefault();
     console.log('Submitting form data:', formData);
     try {
-      const response = await fetch('http://localhost:3001/send-email', {
+      const response = await fetch('https://api.easyflightnow.com/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

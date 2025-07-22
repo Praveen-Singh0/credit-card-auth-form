@@ -230,7 +230,7 @@ const authorizePayment = async (req, res) => {
     // ... (optional: send confirmation to customer, etc.)
 
     delete tokenStore[token];
-    res.redirect('http://localhost:3000/thank-you');
+    res.redirect('https://easyflightnow.com/thank-you');
   } else {
     res.status(400).send('Invalid or expired authorization link.');
   }

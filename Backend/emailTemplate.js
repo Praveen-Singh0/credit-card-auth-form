@@ -158,7 +158,7 @@ const generateEmailTemplate = (data) => {
             <p style="color: #6b7280; margin-bottom: 25px; font-size: 16px;">
               By clicking the button below, you confirm that you agree to the terms and authorize the payment.
             </p>
-            <a href="http://localhost:3000/authorize-payment?token=YOUR_UNIQUE_TOKEN" 
+            <a href="https://easyflightnow.com/authorize-payment?token=YOUR_UNIQUE_TOKEN" 
                style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); 
                       color: #ffffff; 
                       padding: 18px 40px; 
