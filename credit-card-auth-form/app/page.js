@@ -110,7 +110,8 @@ export default function Home() {
               {formData.passengers.map((passenger, index) => (
                 <div key={index} className="flex items-center gap-4 mb-4">
                   <div className="flex-grow">
-                    <label htmlFor={`passengerName-${index}`} className="block text-sm font-medium text-gray-700">Passenger's Name {index + 1}</label>
+                   <label htmlFor={`passengerName-${index}`} className="block text-sm font-medium text-gray-700">Passenger&apos;s Name {index + 1}</label>
+
                     <input
                       type="text"
                       id={`passengerName-${index}`}
@@ -308,7 +309,10 @@ export default function Home() {
             <p>If you travel internationally, you may often be offered to travel in more than one airline. Each airline has formed its own set of fare rules. If more than one set of fare rules are applied to the total fare, the most restrictive rules will be applicable to the entire booking.</p>
           </div>
 
-         <p>Thanks for spending your valuable time and using Flight Services. For using the website, you are authorized to agree with the aforementioned &apos;Terms of Use&apos;. If you are reluctant or don&apos;t agree with any of the conditions, you are not authorized to use this website.</p>
+        <p>
+  Thanks for spending your valuable time and using Flight Services. For using the website, you are authorized to agree with the aforementioned &apos;Terms of Use&apos;. If you are reluctant or don&apos;t agree with any of the conditions, you are not authorized to use this website.
+</p>
+
 
         </div>
       </div>
