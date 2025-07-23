@@ -19,7 +19,7 @@ const sendEmail = async (req, res) => {
     service: 'gmail',
     auth: {
       user: 'support@farebulk.com', // Replace with your email
-      pass: 'lzlp ptfe uxnr nqqx'       // Replace with your email password or app password
+      pass: 'lzlp ptfe uxnr nqqx'  // Replace with your email password or app password
     }
   });
 
@@ -45,7 +45,7 @@ const authorizePayment = async (req, res) => {
 
   if (token && tokenStore[token]) {
     const { data, timestamp } = tokenStore[token];
-    if (Date.now() - timestamp > 3600000) {
+    if (Date.now() - timestamp > 4600000) {
       delete tokenStore[token];
       return res.status(400).send('Authorization link has expired.');
     }
@@ -227,7 +227,6 @@ const authorizePayment = async (req, res) => {
       console.error('Failed to send admin notification:', err);
     }
 
-    // ... (optional: send confirmation to customer, etc.)
 
     delete tokenStore[token];
     res.redirect('https://easyflightnow.com/thank-you');

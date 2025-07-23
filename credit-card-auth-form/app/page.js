@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from 'react';
 
 export default function Home() {
@@ -20,8 +19,8 @@ export default function Home() {
     serviceDetails: '',
     authorization: false,
     customerSignature: '',
-    cardType: '', // new
-    companyName: '', // new
+    cardType: '',
+    companyName: '',
   });
 
   const handlePassengerChange = (index, value) => {
