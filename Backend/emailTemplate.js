@@ -1,6 +1,6 @@
 const generateEmailTemplate = (data) => {
-  const passengersList = data.passengers && data.passengers.length 
-    ? data.passengers.map(p => `<li style="margin: 5px 0; color: #374151;">${p}</li>`).join('') 
+  const passengersList = data.passengers && data.passengers.length
+    ? data.passengers.map(p => `<li style="margin: 5px 0; color: #374151;">${p}</li>`).join('')
     : '<li style="margin: 5px 0; color: #6b7280;">No passengers listed</li>';
 
   return `
@@ -130,8 +130,8 @@ const generateEmailTemplate = (data) => {
                 to the above credit card for <strong>${data.serviceDetails}</strong>.
               </p>
               <div style="background-color: #ffffff; padding: 15px; border-radius: 6px; border-left: 3px solid #ef4444; margin-top: 15px;">
-                <p style="margin: 0; color: #dc2626; font-size: 14px; font-weight: 600;">
-                  ⚠️ Important Terms & Conditions:
+                <p style="margin: 0; color: #313131ff; font-size: 8px; font-weight: 600;">
+                   Important Terms & Conditions:
                 </p>
                 <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #374151; font-size: 14px;">
                   <li style="margin: 5px 0;">Tickets are <strong>Non-Refundable/Non-Transferable</strong></li>
@@ -151,6 +151,35 @@ const generateEmailTemplate = (data) => {
               "${data.customerSignature}"
             </p>
           </div>
+
+         <!-- Scrollable Terms & Conditions -->
+<div style="max-height: 250px; overflow-y: auto; background-color: #fff7ed; border: 1px solid #fde68a; padding: 20px; border-radius: 10px; font-size: 13px; color: #374151; line-height: 1.7; margin-bottom: 30px;">
+  <strong>Terms & Conditions</strong><br /><br />
+  Tickets are <strong>Non-Refundable/Non-Transferable</strong> and name changes are not permitted.<br />
+  Date and routing changes will be subject to Airline Penalty and Fare Difference if any.<br />
+  Fares are not guaranteed until ticketed.<br />
+  For any modification or changes please contact our Travel Consultant on <strong>+1-844-480-0252</strong>.<br />
+  All customers are advised to verify travel documents (transit visa/entry visa) for the country through which they are transiting and/or entering. We will not be responsible if proper travel documents are not available and you are denied entry or transit into a Country.<br />
+  We request you to consult the embassy of the country(s) you are visiting or transiting through.<br />
+  These terms and conditions (“terms of use”) apply to you right the moment you access and use Myfaredeal: its services, products, and contents. This is a legal agreement between you and Myfaredeal.<br />
+  Travelers First name and Last name must match government-issued ID.<br />
+  <strong>Fare Policy</strong><br />
+  • Myfaredeal accepts Debit Cards and Credit Cards<br />
+  • All prices are in USD<br />
+  • Ticket fares do not include baggage fees<br />
+  <strong>Payment Policy</strong><br />
+  • Ticket is not guaranteed until issued<br />
+  • In case of card issues, we notify within 24 hrs<br />
+  <strong>Credit Card Declines</strong><br />
+  • You will be notified within 24-48 hours<br />
+  • Booking is not guaranteed until payment success<br />
+  <strong>Cancellation/Exchanges</strong><br />
+  • Must be requested at least 24 hrs prior to departure<br />
+  • Non-refundable tickets unless airline allows<br />
+  • Subject to airline penalties and fare difference<br />
+  • Myfaredeal may charge refund/change fees<br />
+</div>
+
           
           <!-- Call to Action -->
           <div style="text-align: center; margin: 40px 0;">

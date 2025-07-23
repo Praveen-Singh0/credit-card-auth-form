@@ -516,16 +516,17 @@ export default function Home() {
                   />
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    As per our telephonic conversation and as agreed, I,
-                    <span className="font-bold text-blue-600"> {formData.cardholderName || '[CUSTOMER NAME]'} </span>,
-                    authorize
-                    <span className="font-bold text-blue-600"> {formData.companyName || '[COMPANY NAME]'} </span>
-                    to charge my above card for USD
-                    <span className="font-bold text-green-600"> ${formData.amount || '[AMOUNT]'} </span> for
-                    <span className="font-bold text-blue-600">{formData.serviceDetails || '[SERVICE]'}</span>.
-                    I understand that this charge is non-refundable.You may see above charges in split, however total remains same Booking purchased are non-transferable. Name changes are not permitted. Date/Route/Time change may in occur penalty plus difference in fare.
-                  </p>
+                 <p className="text-sm text-gray-700 leading-relaxed">
+  As per our telephonic conversation and as agreed, I,
+  <span className="font-bold text-blue-600"> {formData.cardholderName || '[CUSTOMER NAME]'} </span>,
+  authorize
+  <span className="font-bold text-blue-600"> {formData.companyName || '[COMPANY NAME]'} </span>
+  to charge my above card for USD
+  <span className="font-bold text-green-600"> ${formData.amount || '[AMOUNT]'} </span> for
+  <span className="font-bold text-blue-600">{formData.serviceDetails || '[SERVICE]'}</span>.
+  I understand that this charge is non-refundable. You may see above charges in split, however total remains the same and reflects on your card's statement as processed by the airline consolidator &amp;/or agency.
+</p>
+
 
 
 
