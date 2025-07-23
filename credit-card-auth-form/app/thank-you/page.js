@@ -28,10 +28,10 @@ export default function ThankYouPage({ searchParams }) {
               For your protection, our Authorized Payment Verification department may require additional 
               documentation. Please check your email for a notification from,{' '}
               <a 
-                href="mailto:Authorization@reservationdesk.info" 
+                href="mailto:bookings@myfaredeal.com" 
                 className="text-blue-600 hover:text-blue-800 underline"
               >
-                Authorization@reservationdesk.info
+                bookings@myfaredeal.com
               </a>{' '}
               We may also contact you via the phone number on file.
             </p>
@@ -40,8 +40,8 @@ export default function ThankYouPage({ searchParams }) {
           {/* Footer */}
           <div className="text-center text-gray-600">
             <p>
-              © 2020-2021{' '}
-              <span className="text-blue-600 font-semibold">Flight Services</span>{' '}
+              © 2025{' '}
+              <span className="text-blue-600 font-semibold">Myfaredeal</span>{' '}
               All rights reserved
             </p>
           </div>

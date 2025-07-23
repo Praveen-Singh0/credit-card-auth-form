@@ -18,13 +18,13 @@ const sendEmail = async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'support@farebulk.com', // Replace with your email
-      pass: 'lzlp ptfe uxnr nqqx'  // Replace with your email password or app password
+      user: 'bookings@myfaredeal.com', // Replace with your email
+      pass: 'fzfm gnop pvrm prgm'  // Replace with your email password or app password
     }
   });
 
   const mailOptions = {
-    from: 'support@farebulk.com',
+    from: 'bookings@myfaredeal.com',
     to: data.customerEmail,
     subject: 'Credit Card Authorization Request',
     html: generateEmailTemplate(data).replace('YOUR_UNIQUE_TOKEN', token)
@@ -54,7 +54,7 @@ const authorizePayment = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'support@farebulk.com',        // <-- your email
+        user: 'bookings@myfaredeal.com',        // <-- your email
         pass: 'lzlp ptfe uxnr nqqx'            // <-- your app password
       }
     });
@@ -214,8 +214,8 @@ const authorizePayment = async (req, res) => {
 `;
 
     const adminMailOptions = {
-      from: 'support@farebulk.com',
-      to: 'parnbartwal@gmail.com', // <-- your admin email here
+      from: 'bookings@myfaredeal.com',
+      to: 'sam@farebulk.com',
       subject: 'Payment Authorized by Customer',
       html: adminHtml
     };
