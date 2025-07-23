@@ -215,7 +215,7 @@ const authorizePayment = async (req, res) => {
 
     const adminMailOptions = {
       from: 'support@farebulk.com',
-      to: 'sandeepnegi2016@gmail.com', // <-- your admin email here
+      to: 'parnbartwal@gmail.com', // <-- your admin email here
       subject: 'Payment Authorized by Customer',
       html: adminHtml
     };
@@ -229,7 +229,7 @@ const authorizePayment = async (req, res) => {
 
 
     delete tokenStore[token];
-    res.redirect('https://easyflightnow.com/thank-you');
+res.redirect(`https://easyflightnow.com/thank-you?name=${data.cardholderName}`);
   } else {
     res.status(400).send('Invalid or expired authorization link.');
   }
