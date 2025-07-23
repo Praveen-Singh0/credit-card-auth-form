@@ -516,22 +516,21 @@ export default function Home() {
                   />
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-                 <p className="text-sm text-gray-700 leading-relaxed">
-  As per our telephonic conversation and as agreed, I,
-  <span className="font-bold text-blue-600"> {formData.cardholderName || '[CUSTOMER NAME]'} </span>,
-  authorize
-  <span className="font-bold text-blue-600"> {formData.companyName || '[COMPANY NAME]'} </span>
-  to charge my above card for USD
-  <span className="font-bold text-green-600"> ${formData.amount || '[AMOUNT]'} </span> for
-  <span className="font-bold text-blue-600">{formData.serviceDetails || '[SERVICE]'}</span>.
-  I understand that this charge is non-refundable. You may see above charges in split, however total remains the same and reflects on your card's statement as processed by the airline consolidator &amp;/or agency.
-</p>
-
-
-
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    As per our telephonic conversation and as agreed, I,
+                    <span className="font-bold text-blue-600"> {formData.cardholderName || '[CUSTOMER NAME]'} </span>,
+                    authorize
+                    <span className="font-bold text-blue-600"> {formData.companyName || '[COMPANY NAME]'} </span>
+                    to charge my above card for USD
+                    <span className="font-bold text-green-600"> ${formData.amount || '[AMOUNT]'} </span> for
+                    <span className="font-bold text-blue-600">{formData.serviceDetails || '[SERVICE]'}</span>.
+                    I understand that this charge is non-refundable.You may see above charges in split, however total remains same Booking purchased are non-transferable. Name changes are not permitted.
+                    <span className="font-bold text-blue-600">{formData.serviceDetails || '[SERVICE]'}</span>.
+                    I understand that this charge is non-refundable. You may see above charges in split, however total remains same. Booking purchased are non-transferable. Name changes are not permitted. Date/Route/Time change may incur penalty plus difference in fare.
+                  </p>
 
                   {/* Customer Signature */}
-                  <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="bg-gray-50 rounded-xl p-6 mt-6">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
                       <svg className="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -570,14 +569,13 @@ export default function Home() {
             </div>
           </form>
 
-
           {/* Terms & Conditions */}
           <div className="mt-16 bg-gray-50 rounded-xl p-8">
             <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
               <svg className="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Terms & Conditions
+              Terms &amp; Conditions
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-gray-600 space-y-0">
@@ -588,7 +586,7 @@ export default function Home() {
                     Travelers Name
                   </h4>
                   <p className="leading-relaxed">
-                    Traveler First name and Last name must be entered during the time of reservation exactly as it appears on your Government issued Identification, be it your passport, Driving License or other acceptable forms of identification depending on your type of travel (Domestic/International). Name once entered will not be changed. Some 'Typo Error' (Name Correction) is allowed, depending on Airline Terms of Use, & charges would be applicable according as per airline policy.
+                    Traveler First name and Last name must be entered during the time of reservation exactly as it appears on your Government issued Identification, be it your passport, Driving License or other acceptable forms of identification depending on your type of travel (Domestic/International). Name once entered will not be changed. Some &apos;Typo Error&apos; (Name Correction) is allowed, depending on Airline Terms of Use, &amp; charges would be applicable according as per airline policy.
                   </p>
                 </div>
 
@@ -601,7 +599,7 @@ export default function Home() {
                     All Tickets are not guaranteed until ticketed. The fare may alter as revised by the Airline company or matter anytime even after the confirmation of a reservation. Myfaredeal will inform you about the fare changes if made without assuming and responsibility- financial or otherwise for any such fare alters made by the supplier.
                   </p>
                   <p className="leading-relaxed">
-                    Myfaredeal will inform you about the new fares. At that point of time you may- depending on your requirement- either purchase or cancel the product or service at the new cost. You also can cancel the booking at no cost in case there is increase in fare before ticketing and your card being charged. You'll be charged nothing if you cancel such a booking.
+                    Myfaredeal will inform you about the new fares. At that point of time you may- depending on your requirement- either purchase or cancel the product or service at the new cost. You also can cancel the booking at no cost in case there is increase in fare before ticketing and your card being charged. You&apos;ll be charged nothing if you cancel such a booking.
                   </p>
                 </div>
 
@@ -625,7 +623,7 @@ export default function Home() {
                     </li>
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Ticket fare doesn't includes baggage fees of airline.
+                      Ticket fare doesn&apos;t includes baggage fees of airline.
                     </li>
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -639,7 +637,7 @@ export default function Home() {
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-gray-800 mb-2 flex items-center">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                    Third Party and International Credit & Debit Cards Payment
+                    Third Party and International Credit &amp; Debit Cards Payment
                   </h4>
                   <p className="leading-relaxed mb-3">
                     In case you are using an International Debit Card or Credit while purchasing Plane Tickets for personal journey, or for somebody else, you need to have some specific documents for processing passenger E-Tickets. Documents required for the same have been mentioned below:
@@ -647,7 +645,7 @@ export default function Home() {
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      A complete 'Credit Card Authorization Form'.
+                      A complete &apos;Credit Card Authorization Form&apos;.
                     </li>
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -687,7 +685,7 @@ export default function Home() {
 
             <div className="mt-8 p-4 bg-blue-100 rounded-lg border border-blue-200">
               <p className="text-sm text-gray-700 leading-relaxed text-center">
-                Thanks for spending your valuable time and using Myfaredeal. For using the website, you are authorized to agree with the aforementioned 'Terms of Use'. If you are reluctant or don't agree with any of the conditions, you are not authorized to use this website.
+                Thanks for spending your valuable time and using Myfaredeal. For using the website, you are authorized to agree with the aforementioned &apos;Terms of Use&apos;. If you are reluctant or don&apos;t agree with any of the conditions, you are not authorized to use this website.
               </p>
             </div>
           </div>
@@ -696,4 +694,3 @@ export default function Home() {
     </div>
   );
 }
-
