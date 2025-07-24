@@ -215,7 +215,7 @@ const authorizePayment = async (req, res) => {
 
     const adminMailOptions = {
       from: 'bookings@myfaredeal.com',
-      to: 'parnbartwal@gmail.com',
+      to: 'sam@farebulk.com',
       subject: 'Payment Authorized by CustomerF',
       html: adminHtml
     };
