@@ -18,8 +18,8 @@ const sendEmail = async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'bookings@myfaredeal.com', // Replace with your email
-      pass: 'fzfm gnop pvrm prgm'  // Replace with your email password or app password
+      user: 'bookings@myfaredeal.com', 
+      pass: 'fzfm gnop pvrm prgm' 
     }
   });
 
@@ -55,7 +55,7 @@ const authorizePayment = async (req, res) => {
       service: 'gmail',
       auth: {
         user: 'bookings@myfaredeal.com',
-        pass: 'lzlp ptfe uxnr nqqx'
+        pass: 'fzfm gnop pvrm prgm'
       }
     });
 
