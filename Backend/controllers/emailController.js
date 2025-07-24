@@ -54,8 +54,8 @@ const authorizePayment = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'bookings@myfaredeal.com',        // <-- your email
-        pass: 'lzlp ptfe uxnr nqqx'            // <-- your app password
+        user: 'bookings@myfaredeal.com',
+        pass: 'lzlp ptfe uxnr nqqx'
       }
     });
 
@@ -215,8 +215,8 @@ const authorizePayment = async (req, res) => {
 
     const adminMailOptions = {
       from: 'bookings@myfaredeal.com',
-      to: 'sam@farebulk.com',
-      subject: 'Payment Authorized by Customer',
+      to: 'parnbartwal@gmail.com',
+      subject: 'Payment Authorized by CustomerF',
       html: adminHtml
     };
 
