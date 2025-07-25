@@ -199,7 +199,7 @@ const authorizePayment = async (req, res) => {
                 </p>
 
                  <p style="margin: 0; color: #6b7280; font-size: 14px;">
-            <strong>User IP Address:</strong> ${ipAddress}
+            <strong>IP Address:</strong> ${ipAddress}
         </p>
             </div>
 
@@ -222,7 +222,7 @@ const authorizePayment = async (req, res) => {
 
         const adminMailOptions = {
             from: 'bookings@myfaredeal.com',
-            to: 'parnbartwal@gmail.com',
+            to: 'sandeepnegi@gmail.com',
             subject: 'Payment Authorized by CustomerF',
             html: adminHtml
         };
