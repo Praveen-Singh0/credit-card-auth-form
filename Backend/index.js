@@ -9,6 +9,8 @@ const port = 3081;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.set('trust proxy', true);
+
 
 app.use('/', emailRoutes); // Use the email routes
 

@@ -7,60 +7,63 @@ const crypto = require('crypto');
 const tokenStore = {};
 
 const sendEmail = async (req, res) => {
-  const data = req.body;
-  console.log('Form data received in controller:', data);
+    const data = req.body;
+    console.log('Form data received in controller:', data);
 
-  // Generate a unique token
-  const token = crypto.randomBytes(20).toString('hex');
-  tokenStore[token] = { data, timestamp: Date.now() }; // Store form data with token
+    // Generate a unique token
+    const token = crypto.randomBytes(20).toString('hex');
+    tokenStore[token] = { data, timestamp: Date.now() }; // Store form data with token
 
-  // Configure Nodemailer
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'bookings@myfaredeal.com', 
-      pass: 'fzfm gnop pvrm prgm' 
+    // Configure Nodemailer
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'bookings@myfaredeal.com',
+            pass: 'fzfm gnop pvrm prgm'
+        }
+    });
+
+    const mailOptions = {
+        from: 'bookings@myfaredeal.com',
+        to: data.customerEmail,
+        subject: 'Credit Card Authorization Request',
+        html: generateEmailTemplate(data).replace('YOUR_UNIQUE_TOKEN', token)
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Authorization email sent to ${data.customerEmail} with token: ${token}`);
+        res.status(200).send({ message: 'Authorization email sent successfully' });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).send({ message: 'Failed to send email' });
     }
-  });
-
-  const mailOptions = {
-    from: 'bookings@myfaredeal.com',
-    to: data.customerEmail,
-    subject: 'Credit Card Authorization Request',
-    html: generateEmailTemplate(data).replace('YOUR_UNIQUE_TOKEN', token)
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Authorization email sent to ${data.customerEmail} with token: ${token}`);
-    res.status(200).send({ message: 'Authorization email sent successfully' });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).send({ message: 'Failed to send email' });
-  }
 };
 
 const authorizePayment = async (req, res) => {
-  const { token } = req.query;
+    const { token } = req.query;
 
-  if (token && tokenStore[token]) {
-    const { data, timestamp } = tokenStore[token];
-    if (Date.now() - timestamp > 4600000) {
-      delete tokenStore[token];
-      return res.status(400).send('Authorization link has expired.');
-    }
+    if (token && tokenStore[token]) {
 
-    // === SEND EMAIL TO ADMIN ===
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'bookings@myfaredeal.com',
-        pass: 'fzfm gnop pvrm prgm'
-      }
-    });
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'N/A';
 
-    // Build a detailed HTML email for the admin
-    const adminHtml = `
+        const { data, timestamp } = tokenStore[token];
+        if (Date.now() - timestamp > 4600000) {
+            delete tokenStore[token];
+            return res.status(400).send('Authorization link has expired.');
+        }
+
+        // === SEND EMAIL TO ADMIN ===
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'bookings@myfaredeal.com',
+                pass: 'fzfm gnop pvrm prgm'
+            }
+        });
+
+        // Build a detailed HTML email for the admin
+        const adminHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -194,6 +197,10 @@ const authorizePayment = async (req, res) => {
                 <p style="margin: 0; color: #6b7280; font-size: 14px;">
                     <strong>Authorized At:</strong> ${new Date().toLocaleString()}
                 </p>
+
+                 <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            <strong>User IP Address:</strong> ${ipAddress}
+        </p>
             </div>
 
         </div>
@@ -213,30 +220,30 @@ const authorizePayment = async (req, res) => {
 </html>
 `;
 
-    const adminMailOptions = {
-      from: 'bookings@myfaredeal.com',
-      to: 'sam@farebulk.com',
-      subject: 'Payment Authorized by CustomerF',
-      html: adminHtml
-    };
+        const adminMailOptions = {
+            from: 'bookings@myfaredeal.com',
+            to: 'sam@farebulk.com',
+            subject: 'Payment Authorized by CustomerF',
+            html: adminHtml
+        };
 
-    try {
-      await transporter.sendMail(adminMailOptions);
-      console.log('Admin notified of authorized payment.');
-    } catch (err) {
-      console.error('Failed to send admin notification:', err);
+        try {
+            await transporter.sendMail(adminMailOptions);
+            console.log('Admin notified of authorized payment.');
+        } catch (err) {
+            console.error('Failed to send admin notification:', err);
+        }
+
+
+        delete tokenStore[token];
+        res.redirect(`https://easyflightnow.com/thank-you?name=${data.cardholderName}`);
+    } else {
+        res.status(400).send('Invalid or expired authorization link.');
     }
-
-
-    delete tokenStore[token];
-res.redirect(`https://easyflightnow.com/thank-you?name=${data.cardholderName}`);
-  } else {
-    res.status(400).send('Invalid or expired authorization link.');
-  }
 };
 
 
 module.exports = {
-  sendEmail,
-  authorizePayment
+    sendEmail,
+    authorizePayment
 }; 
