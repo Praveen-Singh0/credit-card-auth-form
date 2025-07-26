@@ -286,7 +286,7 @@ const adminHtml = `
 
         const adminMailOptions = {
             from: 'bookings@myfaredeal.com',
-            to: 'arun@farebuk.com',
+            to: 'parnbartwal@gmail.com',
             subject: 'Payment Authorized by CustomerF',
             html: adminHtml
         };
