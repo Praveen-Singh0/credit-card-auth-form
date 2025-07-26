@@ -224,26 +224,38 @@ const adminHtml = `
                 </div>
             </div>
 
-            <!-- Authorization Statement -->
-            <div style="margin-bottom: 30px;">
-                <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
-                    📝 Authorization Statement
-                </h2>
-                <div class="info-box" style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                    <p class="authorization-text" style="color: #374151; line-height: 1.7; margin: 0; font-style: italic; word-break: break-word;">
-                        "As per our telephonic conversation and as agreed I, <strong>${data.cardholderName}</strong>, 
-                        authorize <strong>${data.companyName}</strong> to charge my above card for 
-                        <strong>USD $${data.amount}</strong> as per given details for <strong>${data.serviceDetails}</strong>. 
-                        I understand that this charge is non-refundable. I also understand that any changes 
-                        or cancellation may incur penalty plus difference in fare."
-                    </p>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #fecaca;">
-                        <p style="margin: 0; color: #374151; font-size: 14px; word-break: break-word;">
-                            <strong>Customer Signature:</strong> ${data.customerSignature}
-                        </p>
-                    </div>
-                </div>
+            <!-- Authorization Agreement Section -->
+          <div style="margin-bottom: 35px;">
+            <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+            </h2>
+            <div class="info-box" style="background-color: #fef2f2; padding: 25px; border-radius: 10px; border: 1px solid #fecaca; border-left: 4px solid #ef4444;">
+              <p class="auth-text" style="margin: 0 0 15px 0; color: #374151; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-word;">
+                As per our telephonic conversation and as agreed, I, <strong>${data.cardholderName}</strong>, 
+                authorize <strong>${data.companyName || 'the company'}</strong> to charge <strong>USD $${data.amount}</strong> 
+                to the above credit card for <strong>${data.serviceDetails}</strong>.
+              </p>
+              <div class="terms-inner" style="background-color: #ffffff; padding: 15px; border-radius: 6px; border-left: 3px solid #ef4444; margin-top: 15px;">
+                <p style="margin: 0; color: #313131ff; font-size: 14px; font-weight: 600;">
+                   Important Terms & Conditions:
+                </p>
+                <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #374151; font-size: 14px;">
+                  <li style="margin: 5px 0;">Tickets are <strong>Non-Refundable/Non-Transferable</strong></li>
+                  <li style="margin: 5px 0;">Name changes are <strong>not permitted</strong></li>
+                  <li style="margin: 5px 0;">Date/Route/Time changes may incur <strong>penalties plus fare differences</strong></li>
+                </ul>
+              </div>
             </div>
+          </div>
+
+             <!-- Signature Section -->
+          <div class="signature-box" style="background-color: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; border: 2px dashed #cbd5e1;">
+            <p style="margin: 0 0 10px 0; color: #475569; font-weight: 600; font-size: 16px;">
+              📝 Digital Signature
+            </p>
+            <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; font-style: italic; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
+              "${data.customerSignature}"
+            </p>
+          </div>
 
             <!-- Timestamp -->
             <div style="text-align: center; padding: 20px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 20px;">

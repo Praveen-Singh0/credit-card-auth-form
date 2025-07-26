@@ -204,7 +204,6 @@ const generateEmailTemplate = (data) => {
           <!-- Authorization Agreement Section -->
           <div style="margin-bottom: 35px;">
             <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
-              <span style="margin-right: 10px;">📋</span> Authorization Agreement
             </h2>
             <div class="info-box" style="background-color: #fef2f2; padding: 25px; border-radius: 10px; border: 1px solid #fecaca; border-left: 4px solid #ef4444;">
               <p class="auth-text" style="margin: 0 0 15px 0; color: #374151; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-word;">
