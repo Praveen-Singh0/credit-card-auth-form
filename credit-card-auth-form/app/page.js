@@ -176,7 +176,7 @@ export default function Home() {
 
     console.log('Submitting form data:', formData);
     try {
-      const response = await fetch('https://api.easyflightnow.com/send-email', {
+      const response = await fetch('https://api.myfaredeal.us/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

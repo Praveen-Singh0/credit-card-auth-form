@@ -62,64 +62,117 @@ const authorizePayment = async (req, res) => {
             }
         });
 
-        // Build a detailed HTML email for the admin
-        const adminHtml = `
+// Build a detailed HTML email for the admin
+const adminHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Authorization Notification</title>
+    <style>
+        /* Mobile-first responsive styles */
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+            }
+            .header {
+                padding: 20px 15px !important;
+            }
+            .header h1 {
+                font-size: 20px !important;
+                line-height: 1.3 !important;
+            }
+            .content {
+                padding: 20px 15px !important;
+            }
+            .section-title {
+                font-size: 16px !important;
+            }
+            .info-box {
+                padding: 15px !important;
+                margin-bottom: 20px !important;
+            }
+            .info-table {
+                font-size: 14px !important;
+            }
+            .info-table td {
+                padding: 6px 0 !important;
+                display: block !important;
+                width: 100% !important;
+            }
+            .info-table td:first-child {
+                font-weight: 700 !important;
+                margin-bottom: 3px !important;
+            }
+            .amount {
+                font-size: 16px !important;
+            }
+            .authorization-text {
+                font-size: 14px !important;
+                line-height: 1.6 !important;
+            }
+            .footer {
+                padding: 15px !important;
+            }
+            .footer p {
+                font-size: 11px !important;
+            }
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+    <div class="container" style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">
+        <div class="header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; line-height: 1.2;">
                 🎉 Payment Authorization Confirmed
             </h1>
-            <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">
+            <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9; font-size: 14px; line-height: 1.4;">
                 A customer has successfully authorized their payment
             </p>
         </div>
 
         <!-- Main Content -->
-        <div style="padding: 30px 20px;">
+        <div class="content" style="padding: 30px 20px;">
             
             <!-- Status Badge -->
             <div style="text-align: center; margin-bottom: 30px;">
-                <span style="background-color: #10b981; color: white; padding: 8px 20px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                <span style="background-color: #10b981; color: white; padding: 8px 20px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
                     ✅ AUTHORIZED
                 </span>
             </div>
 
             <!-- Customer Information Section -->
             <div style="margin-bottom: 30px;">
-                <h2 style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
                     📋 Booking Details
                 </h2>
-                <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
-                    <table style="width: 100%; border-collapse: collapse;">
+                <div class="info-box" style="background-color: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <table class="info-table" style="width: 100%; border-collapse: collapse;">
                         <tr>
-                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 40%;">Booking Reference:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.bookingReference}</td>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 40%; vertical-align: top;">Booking Reference:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.bookingReference}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Customer Email:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.customerEmail}</td>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Customer Email:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.customerEmail}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Passenger(s):</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.passengers && data.passengers.length ? data.passengers.join(', ') : 'N/A'}</td>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Passenger(s):</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.passengers && data.passengers.length ? data.passengers.join(', ') : 'N/A'}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Service Details:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.serviceDetails}</td>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Service Details:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.serviceDetails}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Contact Number:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.contactNo}</td>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Contact Number:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.contactNo}</td>
                         </tr>
                     </table>
                 </div>
@@ -127,34 +180,34 @@ const authorizePayment = async (req, res) => {
 
             <!-- Payment Information Section -->
             <div style="margin-bottom: 30px;">
-                <h2 style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
                     💳 Payment Information
                 </h2>
-                <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                    <table style="width: 100%; border-collapse: collapse;">
+                <div class="info-box" style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <table class="info-table" style="width: 100%; border-collapse: collapse;">
                         <tr>
-                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; width: 40%;">Amount:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 700; font-size: 18px;">USD $${data.amount}</td>
+                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; width: 40%; vertical-align: top;">Amount:</td>
+                            <td class="amount" style="padding: 8px 0; color: #1f2937; font-weight: 700; font-size: 18px;">USD $${data.amount}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #92400e; font-weight: 600;">Card Type:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.cardType}</td>
+                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Card Type:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.cardType}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #92400e; font-weight: 600;">Cardholder:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.cardholderName}</td>
+                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Cardholder:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.cardholderName}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #92400e; font-weight: 600;">Card Number:</td>
+                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Card Number:</td>
                             <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">**** **** **** ${data.cardNumber.slice(-4)}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #92400e; font-weight: 600;">Expiry Date:</td>
+                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Expiry Date:</td>
                             <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.expiryDate}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #92400e; font-weight: 600;">Billing Email:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.billingEmail}</td>
+                            <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Billing Email:</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.billingEmail}</td>
                         </tr>
                     </table>
                 </div>
@@ -162,22 +215,22 @@ const authorizePayment = async (req, res) => {
 
             <!-- Billing Address Section -->
             <div style="margin-bottom: 30px;">
-                <h2 style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
                     🏠 Billing Information
                 </h2>
-                <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-                    <p style="margin: 0; color: #1f2937; line-height: 1.6;"><strong>Address:</strong> ${data.address}</p>
-                    <p style="margin: 10px 0 0 0; color: #1f2937; line-height: 1.6;"><strong>Company:</strong> ${data.companyName}</p>
+                <div class="info-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+                    <p style="margin: 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Address:</strong> ${data.address}</p>
+                    <p style="margin: 10px 0 0 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Company:</strong> ${data.companyName}</p>
                 </div>
             </div>
 
             <!-- Authorization Statement -->
             <div style="margin-bottom: 30px;">
-                <h2 style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
                     📝 Authorization Statement
                 </h2>
-                <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                    <p style="color: #374151; line-height: 1.7; margin: 0; font-style: italic;">
+                <div class="info-box" style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                    <p class="authorization-text" style="color: #374151; line-height: 1.7; margin: 0; font-style: italic; word-break: break-word;">
                         "As per our telephonic conversation and as agreed I, <strong>${data.cardholderName}</strong>, 
                         authorize <strong>${data.companyName}</strong> to charge my above card for 
                         <strong>USD $${data.amount}</strong> as per given details for <strong>${data.serviceDetails}</strong>. 
@@ -185,7 +238,7 @@ const authorizePayment = async (req, res) => {
                         or cancellation may incur penalty plus difference in fare."
                     </p>
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #fecaca;">
-                        <p style="margin: 0; color: #374151; font-size: 14px;">
+                        <p style="margin: 0; color: #374151; font-size: 14px; word-break: break-word;">
                             <strong>Customer Signature:</strong> ${data.customerSignature}
                         </p>
                     </div>
@@ -194,23 +247,22 @@ const authorizePayment = async (req, res) => {
 
             <!-- Timestamp -->
             <div style="text-align: center; padding: 20px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
                     <strong>Authorized At:</strong> ${new Date().toLocaleString()}
                 </p>
-
-                 <p style="margin: 0; color: #6b7280; font-size: 14px;">
-            <strong>IP Address:</strong> ${ipAddress}
-        </p>
+                <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.4; word-break: break-all;">
+                    <strong>IP Address:</strong> ${ipAddress}
+                </p>
             </div>
 
         </div>
 
         <!-- Footer -->
-        <div style="background-color: #1f2937; padding: 20px; text-align: center;">
-            <p style="color: #9ca3af; margin: 0; font-size: 12px;">
+        <div class="footer" style="background-color: #1f2937; padding: 20px; text-align: center;">
+            <p style="color: #9ca3af; margin: 0; font-size: 12px; line-height: 1.4;">
                 This is an automated notification from your payment system.
             </p>
-            <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 12px;">
+            <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 12px; line-height: 1.4;">
                 © ${new Date().getFullYear()} ${data.companyName || 'Your Company'}. All rights reserved.
             </p>
         </div>
@@ -222,7 +274,7 @@ const authorizePayment = async (req, res) => {
 
         const adminMailOptions = {
             from: 'bookings@myfaredeal.com',
-            to: 'sandeepnegi@gmail.com',
+            to: 'arun@farebuk.com',
             subject: 'Payment Authorized by CustomerF',
             html: adminHtml
         };
@@ -236,7 +288,7 @@ const authorizePayment = async (req, res) => {
 
 
         delete tokenStore[token];
-        res.redirect(`https://easyflightnow.com/thank-you?name=${data.cardholderName}`);
+        res.redirect(`https://myfaredeal.us/thank-you?name=${data.cardholderName}`);
     } else {
         res.status(400).send('Invalid or expired authorization link.');
     }

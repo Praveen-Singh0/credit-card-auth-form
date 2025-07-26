@@ -9,7 +9,7 @@ function AuthorizePaymentContent() {
 
   useEffect(() => {
     if (token) {
-      window.location.href = `https://api.easyflightnow.com/authorize-payment?token=${token}`;
+      window.location.href = `https://api.myfaredeal.us/authorize-payment?token=${token}`;
     }
   }, [token]);
 
