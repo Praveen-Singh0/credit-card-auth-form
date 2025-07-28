@@ -1,69 +1,71 @@
-
-const nodemailer = require('nodemailer');
-const generateEmailTemplate = require('../emailTemplate');
-const crypto = require('crypto');
+const nodemailer = require("nodemailer");
+const generateEmailTemplate = require("../emailTemplate");
+const crypto = require("crypto");
 
 // In-memory store for tokens. In a real app, use a database.
 const tokenStore = {};
 
 const sendEmail = async (req, res) => {
-    const data = req.body;
-    console.log('Form data received in controller:', data);
+  const data = req.body;
+  console.log("Form data received in controller:", data);
 
-    // Generate a unique token
-    const token = crypto.randomBytes(20).toString('hex');
-    tokenStore[token] = { data, timestamp: Date.now() }; // Store form data with token
+  // Generate a unique token
+  const token = crypto.randomBytes(20).toString("hex");
+  tokenStore[token] = { data, timestamp: Date.now() }; // Store form data with token
 
-    // Configure Nodemailer
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'bookings@myfaredeal.com',
-            pass: 'fzfm gnop pvrm prgm'
-        }
-    });
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "bookings@myfaredeal.com",
+      pass: "fzfm gnop pvrm prgm",
+    },
+  });
 
-    const mailOptions = {
-        from: 'bookings@myfaredeal.com',
-        to: data.customerEmail,
-        subject: 'Credit Card Authorization Request',
-        html: generateEmailTemplate(data).replace('YOUR_UNIQUE_TOKEN', token)
-    };
+  const mailOptions = {
+    from: "bookings@myfaredeal.com",
+    to: data.customerEmail,
+    subject: "Credit Card Authorization Request",
+    html: generateEmailTemplate(data).replace("YOUR_UNIQUE_TOKEN", token),
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Authorization email sent to ${data.customerEmail} with token: ${token}`);
-        res.status(200).send({ message: 'Authorization email sent successfully' });
-    } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).send({ message: 'Failed to send email' });
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(
+      `Authorization email sent to ${data.customerEmail} with token: ${token}`
+    );
+    res.status(200).send({ message: "Authorization email sent successfully" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).send({ message: "Failed to send email" });
+  }
 };
 
 const authorizePayment = async (req, res) => {
-    const { token } = req.query;
+  const { token } = req.query;
 
-    if (token && tokenStore[token]) {
+  if (token && tokenStore[token]) {
+    const ipAddress =
+      req.headers["x-forwarded-for"] || req.socket.remoteAddress || "N/A";
 
-        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'N/A';
+    const { data, timestamp } = tokenStore[token];
+    if (Date.now() - timestamp > 4600000) {
+      delete tokenStore[token];
+      return res.status(400).send("Authorization link has expired.");
+    }
 
-        const { data, timestamp } = tokenStore[token];
-        if (Date.now() - timestamp > 4600000) {
-            delete tokenStore[token];
-            return res.status(400).send('Authorization link has expired.');
-        }
+    // === SEND EMAIL TO ADMIN ===
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "bookings@myfaredeal.com",
+        pass: "fzfm gnop pvrm prgm",
+      },
+    });
 
-        // === SEND EMAIL TO ADMIN ===
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'bookings@myfaredeal.com',
-                pass: 'fzfm gnop pvrm prgm'
-            }
-        });
-
-// Build a detailed HTML email for the admin
-const adminHtml = `
+    // Build a detailed HTML email for the admin
+    const adminHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -156,23 +158,35 @@ const adminHtml = `
                     <table class="info-table" style="width: 100%; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 40%; vertical-align: top;">Booking Reference:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.bookingReference}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.bookingReference
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Customer Email:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.customerEmail}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.customerEmail
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Passenger(s):</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.passengers && data.passengers.length ? data.passengers.join(', ') : 'N/A'}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.passengers && data.passengers.length
+                                ? data.passengers.join(", ")
+                                : "N/A"
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Service Details:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.serviceDetails}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.serviceDetails
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Contact Number:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.contactNo}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.contactNo
+                            }</td>
                         </tr>
                     </table>
                 </div>
@@ -187,27 +201,39 @@ const adminHtml = `
                     <table class="info-table" style="width: 100%; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; width: 40%; vertical-align: top;">Amount:</td>
-                            <td class="amount" style="padding: 8px 0; color: #1f2937; font-weight: 700; font-size: 18px;">USD $${data.amount}</td>
+                            <td class="amount" style="padding: 8px 0; color: #1f2937; font-weight: 700; font-size: 18px;">USD $${
+                              data.amount
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Card Type:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.cardType}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.cardType
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Cardholder:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.cardholderName}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.cardholderName
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Card Number:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">**** **** **** ${data.cardNumber.slice(-4)}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">**** **** **** ${data.cardNumber.slice(
+                              -4
+                            )}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Expiry Date:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.expiryDate}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${
+                              data.expiryDate
+                            }</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Billing Email:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.billingEmail}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                              data.billingEmail
+                            }</td>
                         </tr>
                     </table>
                 </div>
@@ -219,8 +245,12 @@ const adminHtml = `
                     🏠 Billing Information
                 </h2>
                 <div class="info-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-                    <p style="margin: 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Address:</strong> ${data.address}</p>
-                    <p style="margin: 10px 0 0 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Company:</strong> ${data.companyName}</p>
+                    <p style="margin: 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Address:</strong> ${
+                      data.address
+                    }</p>
+                    <p style="margin: 10px 0 0 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Merchant:</strong> ${
+                      data.companyName
+                    }</p>
                 </div>
             </div>
 
@@ -230,9 +260,15 @@ const adminHtml = `
             </h2>
             <div class="info-box" style="background-color: #fef2f2; padding: 25px; border-radius: 10px; border: 1px solid #fecaca; border-left: 4px solid #ef4444;">
               <p class="auth-text" style="margin: 0 0 15px 0; color: #374151; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-word;">
-                As per our telephonic conversation and as agreed, I, <strong>${data.cardholderName}</strong>, 
-                authorize <strong>${data.companyName || 'the company'}</strong> to charge <strong>USD $${data.amount}</strong> 
-                to the above credit card for <strong>${data.serviceDetails}</strong>.
+                As per our telephonic conversation and as agreed, I, <strong>${
+                  data.cardholderName
+                }</strong>, 
+                authorize <strong>${
+                  data.companyName || "the merchant"
+                }</strong> to charge <strong>USD $${data.amount}</strong> 
+                to the above credit card for <strong>${
+                  data.serviceDetails
+                }</strong>.
               </p>
               <div class="terms-inner" style="background-color: #ffffff; padding: 15px; border-radius: 6px; border-left: 3px solid #ef4444; margin-top: 15px;">
                 <p style="margin: 0; color: #313131ff; font-size: 14px; font-weight: 600;">
@@ -250,10 +286,10 @@ const adminHtml = `
              <!-- Signature Section -->
           <div class="signature-box" style="background-color: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; border: 2px dashed #cbd5e1;">
             <p style="margin: 0 0 10px 0; color: #475569; font-weight: 600; font-size: 16px;">
-              📝 Digital Signature
+              📝  Customer Signature
             </p>
-            <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; font-style: italic; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
-              "${data.customerSignature}"
+            <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
+              ${data.customerSignature}
             </p>
           </div>
 
@@ -275,7 +311,9 @@ const adminHtml = `
                 This is an automated notification from your payment system.
             </p>
             <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 12px; line-height: 1.4;">
-                © ${new Date().getFullYear()} ${data.companyName || 'Your Company'}. All rights reserved.
+                © ${new Date().getFullYear()} ${
+      data.companyName || "Your Merchant"
+    }. All rights reserved.
             </p>
         </div>
 
@@ -284,30 +322,30 @@ const adminHtml = `
 </html>
 `;
 
-        const adminMailOptions = {
-            from: 'bookings@myfaredeal.com',
-            to: 'arun@farebuk.com',
-            subject: 'Payment Authorized by CustomerF',
-            html: adminHtml
-        };
+    const adminMailOptions = {
+      from: "bookings@myfaredeal.com",
+      to: "sandeepnegi2016@gmail.com",
+      subject: "Payment Authorized by CustomerF",
+      html: adminHtml,
+    };
 
-        try {
-            await transporter.sendMail(adminMailOptions);
-            console.log('Admin notified of authorized payment.');
-        } catch (err) {
-            console.error('Failed to send admin notification:', err);
-        }
-
-
-        delete tokenStore[token];
-        res.redirect(`https://myfaredeal.us/thank-you?name=${data.cardholderName}`);
-    } else {
-        res.status(400).send('Invalid or expired authorization link.');
+    try {
+      await transporter.sendMail(adminMailOptions);
+      console.log("Admin notified of authorized payment.");
+    } catch (err) {
+      console.error("Failed to send admin notification:", err);
     }
+
+    delete tokenStore[token];
+    res.redirect(
+      `https://myfaredeal.us/thank-you?name=${data.cardholderName}?merchant=${data.companyName}`
+    );
+  } else {
+    res.status(400).send("Invalid or expired authorization link.");
+  }
 };
 
-
 module.exports = {
-    sendEmail,
-    authorizePayment
-}; 
+  sendEmail,
+  authorizePayment,
+};

@@ -208,7 +208,7 @@ const generateEmailTemplate = (data) => {
             <div class="info-box" style="background-color: #fef2f2; padding: 25px; border-radius: 10px; border: 1px solid #fecaca; border-left: 4px solid #ef4444;">
               <p class="auth-text" style="margin: 0 0 15px 0; color: #374151; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-word;">
                 As per our telephonic conversation and as agreed, I, <strong>${data.cardholderName}</strong>, 
-                authorize <strong>${data.companyName || 'the company'}</strong> to charge <strong>USD $${data.amount}</strong> 
+                authorize <strong>${data.companyName || 'the merchant'}</strong> to charge <strong>USD $${data.amount}</strong> 
                 to the above credit card for <strong>${data.serviceDetails}</strong>.
               </p>
               <div class="terms-inner" style="background-color: #ffffff; padding: 15px; border-radius: 6px; border-left: 3px solid #ef4444; margin-top: 15px;">
@@ -227,10 +227,10 @@ const generateEmailTemplate = (data) => {
           <!-- Signature Section -->
           <div class="signature-box" style="background-color: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; border: 2px dashed #cbd5e1;">
             <p style="margin: 0 0 10px 0; color: #475569; font-weight: 600; font-size: 16px;">
-              📝 Digital Signature
+              📝 Customer Signature
             </p>
-            <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; font-style: italic; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
-              "${data.customerSignature}"
+            <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
+              ${data.customerSignature}
             </p>
           </div>
 
@@ -243,10 +243,10 @@ const generateEmailTemplate = (data) => {
           For any modification or changes please contact our Travel Consultant on <strong>+1-844-480-0252</strong>.<br />
           All customers are advised to verify travel documents (transit visa/entry visa) for the country through which they are transiting and/or entering. We will not be responsible if proper travel documents are not available and you are denied entry or transit into a Country.<br />
           We request you to consult the embassy of the country(s) you are visiting or transiting through.<br />
-          These terms and conditions ("terms of use") apply to you right the moment you access and use Myfaredeal: its services, products, and contents. This is a legal agreement between you and Myfaredeal.<br />
+          These terms and conditions ("terms of use") apply to you right the moment you access and use ${data.companyName}: its services, products, and contents. This is a legal agreement between you and ${data.companyName}.<br />
           Travelers First name and Last name must match government-issued ID.<br />
           <strong>Fare Policy</strong><br />
-          • Myfaredeal accepts Debit Cards and Credit Cards<br />
+          • ${data.companyName} accepts Debit Cards and Credit Cards<br />
           • All prices are in USD<br />
           • Ticket fares do not include baggage fees<br />
           <strong>Payment Policy</strong><br />
@@ -259,7 +259,7 @@ const generateEmailTemplate = (data) => {
           • Must be requested at least 24 hrs prior to departure<br />
           • Non-refundable tickets unless airline allows<br />
           • Subject to airline penalties and fare difference<br />
-          • Myfaredeal may charge refund/change fees<br />
+          • ${data.companyName} may charge refund/change fees<br />
         </div>
 
           
@@ -300,7 +300,7 @@ const generateEmailTemplate = (data) => {
             This is an automated email. Please do not reply to this message.
           </p>
           <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px; line-height: 1.4;">
-            © ${new Date().getFullYear()} ${data.companyName || 'Your Company'}. All rights reserved.
+            © ${new Date().getFullYear()} ${data.companyName || 'Your Merchant'}. All rights reserved.
           </p>
         </div>
 

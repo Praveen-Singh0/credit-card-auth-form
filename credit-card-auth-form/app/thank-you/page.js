@@ -1,6 +1,8 @@
 export default function ThankYouPage({ searchParams }) {
   const customerName = searchParams?.name || 'Valued Customer';
+    const merchantName = searchParams?.merchant || '';
 
+  
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="bg-white max-w-4xl w-full rounded-lg shadow-lg overflow-hidden">
@@ -41,7 +43,7 @@ export default function ThankYouPage({ searchParams }) {
           <div className="text-center text-gray-600">
             <p>
               © 2025{' '}
-              <span className="text-blue-600 font-semibold">Myfaredeal</span>{' '}
+              <span className="text-blue-600 font-semibold">{merchantName}</span>{' '}
               All rights reserved
             </p>
           </div>
