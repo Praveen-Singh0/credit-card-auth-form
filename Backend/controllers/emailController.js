@@ -338,7 +338,7 @@ const authorizePayment = async (req, res) => {
 
     delete tokenStore[token];
     res.redirect(
-      `https://myfaredeal.us/thank-you?name=${data.cardholderName}?merchant=${data.companyName}`
+      `https://myfaredeal.us/thank-you?name=${data.cardholderName}&merchant=${data.companyName}`
     );
   } else {
     res.status(400).send("Invalid or expired authorization link.");

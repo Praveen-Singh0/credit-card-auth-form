@@ -148,7 +148,7 @@ export default function Home() {
         formattedValue = value.replace(/[^0-9.]/g, "");
         break;
       case "companyName":
-        formattedValue = value.toUpperCase();
+        formattedValue = value;
         break;
     }
 
