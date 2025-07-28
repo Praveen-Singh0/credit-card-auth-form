@@ -43,7 +43,7 @@ export default function ThankYouPage({ searchParams }) {
           <div className="text-center text-gray-600">
             <p>
               © 2025{' '}
-              <span className="text-blue-600 font-semibold">{merchantName}</span>{' '}
+              <span className="text-center text-gray-600">{merchantName}</span>{' '}
               All rights reserved
             </p>
           </div>

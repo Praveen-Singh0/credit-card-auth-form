@@ -296,8 +296,11 @@ const authorizePayment = async (req, res) => {
             <!-- Timestamp -->
             <div style="text-align: center; padding: 20px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 20px;">
                 <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
-                    <strong>Authorized At:</strong> ${new Date().toLocaleString()}
-                </p>
+             <strong>Authorized At:</strong> ${new Date().toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            })}
+            </p>
+
                 <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.4; word-break: break-all;">
                     <strong>IP Address:</strong> ${ipAddress}
                 </p>

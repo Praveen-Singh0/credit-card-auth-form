@@ -711,7 +711,7 @@ export default function Home() {
                     className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     placeholder="Myfaredeal INC."
                   />
-                </div>
+                </div> 
                 <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
                   <p className="text-sm text-gray-700 leading-relaxed">
                     As per our telephonic conversation and as agreed, I,
