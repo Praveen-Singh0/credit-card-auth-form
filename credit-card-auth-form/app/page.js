@@ -1035,15 +1035,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-blue-100 rounded-lg border border-blue-200">
-              <p className="text-sm text-gray-700 leading-relaxed text-center">
-                Thanks for spending your valuable time and using Myfaredeal. For
-                using the website, you are authorized to agree with the
-                aforementioned &apos;Terms of Use&apos;. If you are reluctant or
-                don&apos;t agree with any of the conditions, you are not
-                authorized to use this website.
-              </p>
-            </div>
+           
           </div>
         </div>
       </div>

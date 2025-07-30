@@ -293,6 +293,35 @@ const authorizePayment = async (req, res) => {
             </p>
           </div>
 
+           <!-- Scrollable Terms & Conditions -->
+        <div class="terms-box" style="max-height: 250px; overflow-y: auto; background-color: #fff7ed; border: 1px solid #fde68a; padding: 20px; border-radius: 10px; font-size: 13px; color: #374151; line-height: 1.7; margin-bottom: 30px;">
+          <strong>Terms & Conditions</strong><br /><br />
+          Tickets are <strong>Non-Refundable/Non-Transferable</strong> and name changes are not permitted.<br />
+          Date and routing changes will be subject to Airline Penalty and Fare Difference if any.<br />
+          Fares are not guaranteed until ticketed.<br />
+          For any modification or changes please contact our Travel Consultant on <strong>+1-844-480-0252</strong>.<br />
+          All customers are advised to verify travel documents (transit visa/entry visa) for the country through which they are transiting and/or entering. We will not be responsible if proper travel documents are not available and you are denied entry or transit into a Country.<br />
+          We request you to consult the embassy of the country(s) you are visiting or transiting through.<br />
+          These terms and conditions ("terms of use") apply to you right the moment you access and use ${data.companyName}: its services, products, and contents. This is a legal agreement between you and ${data.companyName}.<br />
+          Travelers First name and Last name must match government-issued ID.<br />
+          <strong>Fare Policy</strong><br />
+          • ${data.companyName} accepts Debit Cards and Credit Cards<br />
+          • All prices are in USD<br />
+          • Ticket fares do not include baggage fees<br />
+          <strong>Payment Policy</strong><br />
+          • Ticket is not guaranteed until issued<br />
+          • In case of card issues, we notify within 24 hrs<br />
+          <strong>Credit Card Declines</strong><br />
+          • You will be notified within 24-48 hours<br />
+          • Booking is not guaranteed until payment success<br />
+          <strong>Cancellation/Exchanges</strong><br />
+          • Must be requested at least 24 hrs prior to departure<br />
+          • Non-refundable tickets unless airline allows<br />
+          • Subject to airline penalties and fare difference<br />
+          • ${data.companyName} may charge refund/change fees<br />
+        </div>
+
+
             <!-- Timestamp -->
             <div style="text-align: center; padding: 20px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 20px;">
                 <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">

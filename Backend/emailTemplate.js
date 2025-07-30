@@ -126,7 +126,7 @@ const generateEmailTemplate = (data) => {
           <!-- Traveler Information Section -->
           <div style="margin-bottom: 35px;">
             <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
-              <span style="margin-right: 10px;">✈️</span> Booking Information
+              <span style="margin-right: 10px;">✈️</span> Traveler Information
             </h2>
             <div class="info-box" style="background-color: #f9fafb; padding: 25px; border-radius: 10px; border: 1px solid #e5e7eb;">
               <table class="info-table" style="width: 100%; border-collapse: collapse;">
@@ -157,7 +157,7 @@ const generateEmailTemplate = (data) => {
           <!-- Booking Details Section -->
           <div style="margin-bottom: 35px;">
             <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
-              <span style="margin-right: 10px;">📋</span> Trip Details
+              <span style="margin-right: 10px;">📋</span> Booking Details
             </h2>
             <div class="info-box" style="background-color: #fefce8; padding: 25px; border-radius: 10px; border: 1px solid #fde047; border-left: 4px solid #eab308;">
               <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.7; word-break: break-word;">
