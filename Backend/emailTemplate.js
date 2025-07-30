@@ -230,7 +230,7 @@ const generateEmailTemplate = (data) => {
               📝 Customer Signature
             </p>
             <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
-              ${data.customerSignature}
+              ${data.cardholderName}
             </p>
           </div>
 

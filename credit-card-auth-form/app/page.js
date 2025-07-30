@@ -18,7 +18,6 @@ export default function Home() {
     amount: "",
     serviceDetails: "",
     authorization: false,
-    customerSignature: "",
     cardType: "",
     companyName: "",
   });
@@ -697,20 +696,42 @@ export default function Home() {
             <div className="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-400 rounded-r-xl p-6">
               <div className="space-y-4">
                 <div>
+                  <p className="text-red-500 mb-4">
+                    {`Note: Before sending the "Authorization (I confirm)" email to the customer, 
+    please double-check the merchant name and confirm it with your reporting manager.`}
+  </p>
                   <label
                     htmlFor="companyName"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
                     Merchant Name *
                   </label>
-                  <input
-                    type="text"
-                    id="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Myfaredeal INC."
-                  />
+                <div className="relative w-full">
+  <select
+    id="companyName"
+    value={formData.companyName}
+    onChange={handleChange}
+    className="appearance-none text-black w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 pr-10"
+  >
+    <option value="">Select Merchant</option>
+    <option value="Myfaredeal">Myfaredeal</option>
+    <option value="Farebulk">Farebulk</option>
+  </select>
+  {/* Custom dropdown arrow */}
+  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+    <svg
+      className="w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+</div>
+
+
                 </div> 
                 <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
                   <p className="text-sm text-gray-700 leading-relaxed">
@@ -778,11 +799,11 @@ export default function Home() {
                       <input
                         type="text"
                         id="customerSignature"
-                        value={formData.customerSignature}
-                        onChange={handleChange}
+                        value={formData.cardholderName}
                         className="text-black w-full px-4 py-4 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 font-signature text-2xl"
                         placeholder="Type your full name as signature"
-                        style={{ fontFamily: "cursive" }}
+                        readOnly
+                        
                       />
                       <p className="text-xs text-gray-500 mt-2">
                         By typing your name above, you agree to the terms and

