@@ -55,33 +55,91 @@ const authorizePayment = async (req, res) => {
       return res.status(400).send("Authorization link has expired.");
     }
 
-    // Clean and format the flight summary HTML content for admin email
-    const cleanFlightSummary = (htmlContent) => {
+    // Enhanced flight summary editor for admin email
+    const createAdminFlightSummaryEditor = (htmlContent) => {
       if (!htmlContent || htmlContent.trim() === '') {
-        return '<p style="color: #6b7280; font-style: italic;">No flight details provided</p>';
+        return `
+          <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Courier New', Monaco, monospace; overflow: hidden; margin: 15px 0;">
+            <!-- Editor Header -->
+            <div style="background-color: #f8fafc; border-bottom: 1px solid #e5e7eb; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center;">
+                <span style="color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">✈️ Flight Summary</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ef4444;"></div>
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f59e0b;"></div>
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
+              </div>
+            </div>
+            <!-- Editor Content -->
+            <div style="padding: 30px 20px; background-color: #ffffff; color: #6b7280; font-style: italic; text-align: center; font-size: 14px;">
+              <div style="font-size: 24px; margin-bottom: 12px;">📄</div>
+              <p style="margin: 0; color: #9ca3af;">No flight details provided</p>
+            </div>
+          </div>
+        `;
       }
-      
-      // Remove any script tags for security
+
+       // Remove script tags for security
       const cleanHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
       
-      // Ensure proper styling for email compatibility
-      return cleanHtml
-        .replace(/<p>/g, '<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6;">')
-        .replace(/<h1>/g, '<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 20px; font-weight: 700;">')
-        .replace(/<h2>/g, '<h2 style="color: #1f2937; margin: 18px 0 8px 0; font-size: 18px; font-weight: 600;">')
-        .replace(/<h3>/g, '<h3 style="color: #1f2937; margin: 16px 0 6px 0; font-size: 16px; font-weight: 600;">')
+      // Enhanced styling for admin email
+      const styledContent = cleanHtml
+        .replace(/<p>/g, '<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6; font-size: 13px;">')
+        .replace(/<h1>/g, '<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 18px; font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">')
+        .replace(/<h2>/g, '<h2 style="color: #1f2937; margin: 16px 0 8px 0; font-size: 16px; font-weight: 600; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px;">')
+        .replace(/<h3>/g, '<h3 style="color: #1f2937; margin: 14px 0 6px 0; font-size: 14px; font-weight: 600;">')
         .replace(/<ul>/g, '<ul style="margin: 10px 0; padding-left: 20px; color: #374151;">')
         .replace(/<ol>/g, '<ol style="margin: 10px 0; padding-left: 20px; color: #374151;">')
-        .replace(/<li>/g, '<li style="margin: 5px 0; color: #374151; line-height: 1.5;">')
+        .replace(/<li>/g, '<li style="margin: 4px 0; color: #374151; line-height: 1.5; font-size: 13px;">')
         .replace(/<strong>/g, '<strong style="font-weight: 700; color: #1f2937;">')
         .replace(/<em>/g, '<em style="font-style: italic; color: #4b5563;">')
-        .replace(/<a /g, '<a style="color: #3b82f6; text-decoration: none;" ')
-        .replace(/<img /g, '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0;" ')
-        .replace(/<table>/g, '<table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px;">')
-        .replace(/<td>/g, '<td style="padding: 6px 8px; border: 1px solid #e5e7eb; color: #374151;">')
-        .replace(/<th>/g, '<th style="padding: 6px 8px; border: 1px solid #e5e7eb; background-color: #f3f4f6; color: #1f2937; font-weight: 600; text-align: left; font-size: 12px;">')
-        .replace(/<div>/g, '<div style="margin: 5px 0;">')
+        .replace(/<a /g, '<a style="color: #3b82f6; text-decoration: underline;" ')
+        .replace(/<img /g, '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 8px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" ')
+        .replace(/<table>/g, '<table style="width: 100%; border-collapse: collapse; margin: 12px 0; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px; overflow: hidden; font-size: 12px;">')
+        .replace(/<td>/g, '<td style="padding: 8px 10px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 12px; line-height: 1.4;">')
+        .replace(/<th>/g, '<th style="padding: 10px; background-color: #f8fafc; color: #1f2937; font-weight: 600; text-align: left; font-size: 11px; border-bottom: 1px solid #e5e7eb;">')
+        .replace(/<div>/g, '<div style="margin: 6px 0;">')
         .replace(/<br>/g, '<br/>');
+
+      return `
+        <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Courier New', Monaco, monospace; overflow: hidden; margin: 15px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+          <!-- Editor Header -->
+          <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-bottom: 1px solid #e5e7eb; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="color: #475569; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">✈️ Flight Summary</span>
+              <span style="color: #94a3b8; font-size: 9px;">• Read Only</span>
+            </div>
+            <div style="display: flex; gap: 4px;">
+              <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ef4444; opacity: 0.7;"></div>
+              <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f59e0b; opacity: 0.7;"></div>
+              <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981; opacity: 0.7;"></div>
+            </div>
+          </div>
+          
+          <!-- Compact Toolbar -->
+          <div style="background-color: #fafafa; border-bottom: 1px solid #e5e7eb; padding: 6px 10px; font-size: 9px;">
+            <div style="display: flex; gap: 6px; align-items: center; opacity: 0.6;">
+              <span style="padding: 3px 6px; background-color: #e5e7eb; border-radius: 2px; color: #6b7280; font-weight: 600; font-size: 9px;">B</span>
+              <span style="padding: 3px 6px; background-color: #e5e7eb; border-radius: 2px; color: #6b7280; font-style: italic; font-size: 9px;">I</span>
+              <span style="padding: 3px 6px; background-color: #e5e7eb; border-radius: 2px; color: #6b7280; text-decoration: underline; font-size: 9px;">U</span>
+              <span style="width: 1px; height: 12px; background-color: #d1d5db;"></span>
+              <span style="padding: 3px 6px; background-color: #e5e7eb; border-radius: 2px; color: #6b7280; font-size: 8px;">• List</span>
+              <span style="padding: 3px 6px; background-color: #e5e7eb; border-radius: 2px; color: #6b7280; font-size: 8px;">📷</span>
+            </div>
+          </div>
+          
+          <!-- Scrollable Content -->
+          <div style="padding: 16px; max-height: 280px; overflow-y: auto; background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.5; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+            ${styledContent}
+          </div>
+          
+          <!-- Status Bar -->
+          <div style="background-color: #f8fafc; border-top: 1px solid #e5e7eb; padding: 4px 10px; font-size: 9px; color: #6b7280; text-align: right;">
+            <span>📄 Flight Details • Admin View</span>
+          </div>
+        </div>
+      `;
     };
 
 
@@ -102,7 +160,23 @@ const authorizePayment = async (req, res) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Authorization Notification</title>
-   <style>
+    <style>
+        /* Scrollbar Styling for Flight Summary */
+        .flight-editor-content::-webkit-scrollbar {
+          width: 6px;
+        }
+        .flight-editor-content::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 3px;
+        }
+        .flight-editor-content::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 3px;
+        }
+        .flight-editor-content::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+        
         /* Mobile-first responsive styles */
         @media only screen and (max-width: 600px) {
             .container {
@@ -153,15 +227,18 @@ const authorizePayment = async (req, res) => {
             .footer p {
                 font-size: 11px !important;
             }
-            .flight-summary-content {
-                font-size: 12px !important;
+            .flight-editor {
+                margin: 0 -15px !important;
             }
-            .flight-summary-content img {
-                max-width: 100% !important;
-                height: auto !important;
+            .flight-editor-content {
+                max-height: 200px !important;
+                padding: 12px !important;
             }
-            .flight-summary-content table {
-                font-size: 11px !important;
+            .editor-header {
+                padding: 8px 12px !important;
+            }
+            .editor-toolbar {
+                padding: 4px 12px !important;
             }
         }
     </style>
@@ -198,15 +275,11 @@ const authorizePayment = async (req, res) => {
                     <table class="info-table" style="width: 100%; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; width: 40%; vertical-align: top;">Booking Reference:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.bookingReference
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.bookingReference}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Customer Email:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.customerEmail
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.customerEmail}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Passenger(s):</td>
@@ -218,30 +291,23 @@ const authorizePayment = async (req, res) => {
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Service Details:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.serviceDetails
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.serviceDetails}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #6b7280; font-weight: 600; vertical-align: top;">Contact Number:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.contactNo
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.contactNo}</td>
                         </tr>
                     </table>
                 </div>
             </div>
 
-
-             <!-- Flight Details Section -->
+            <!-- Flight Details Section with Scrollable Editor -->
             <div style="margin-bottom: 30px;">
                 <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
                     ✈️ Flight Details
                 </h2>
-                <div class="info-box" style="background-color: #fefce8; padding: 20px; border-radius: 8px; border-left: 4px solid #eab308;">
-                    <div class="flight-summary-content" style="color: #374151; font-size: 14px; line-height: 1.6; word-break: break-word;">
-                        ${cleanFlightSummary(data.flightSummary)}
-                    </div>
+                <div class="flight-editor">
+                    ${createAdminFlightSummaryEditor(data.flightSummary)}
                 </div>
             </div>
 
@@ -254,39 +320,27 @@ const authorizePayment = async (req, res) => {
                     <table class="info-table" style="width: 100%; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; width: 40%; vertical-align: top;">Amount:</td>
-                            <td class="amount" style="padding: 8px 0; color: #1f2937; font-weight: 700; font-size: 18px;">USD $${
-                              data.amount
-                            }</td>
+                            <td class="amount" style="padding: 8px 0; color: #1f2937; font-weight: 700; font-size: 18px;">USD ${data.amount}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Card Type:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.cardType
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.cardType}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Cardholder:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.cardholderName
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.cardholderName}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Card Number:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">**** **** **** ${data.cardNumber.slice(
-                              -4
-                            )}</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">**** **** **** ${data.cardNumber.slice(-4)}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Expiry Date:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${
-                              data.expiryDate
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500;">${data.expiryDate}</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; color: #92400e; font-weight: 600; vertical-align: top;">Billing Email:</td>
-                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
-                              data.billingEmail
-                            }</td>
+                            <td style="padding: 8px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${data.billingEmail}</td>
                         </tr>
                     </table>
                 </div>
@@ -298,30 +352,21 @@ const authorizePayment = async (req, res) => {
                     🏠 Billing Information
                 </h2>
                 <div class="info-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-                    <p style="margin: 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Address:</strong> ${
-                      data.address
-                    }</p>
-                    <p style="margin: 10px 0 0 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Merchant:</strong> ${
-                      data.companyName
-                    }</p>
+                    <p style="margin: 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Address:</strong> ${data.address}</p>
+                    <p style="margin: 10px 0 0 0; color: #1f2937; line-height: 1.6; word-break: break-word;"><strong>Merchant:</strong> ${data.companyName}</p>
                 </div>
             </div>
 
             <!-- Authorization Agreement Section -->
           <div style="margin-bottom: 35px;">
-            <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+            <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                📝 Authorization Agreement
             </h2>
             <div class="info-box" style="background-color: #fef2f2; padding: 25px; border-radius: 10px; border: 1px solid #fecaca; border-left: 4px solid #ef4444;">
-              <p class="auth-text" style="margin: 0 0 15px 0; color: #374151; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-word;">
-                As per our telephonic conversation and as agreed, I, <strong>${
-                  data.cardholderName
-                }</strong>, 
-                authorize <strong>${
-                  data.companyName || "the merchant"
-                }</strong> to charge <strong>USD $${data.amount}</strong> 
-                to the above credit card for <strong>${
-                  data.serviceDetails
-                }</strong>.
+              <p class="authorization-text" style="margin: 0 0 15px 0; color: #374151; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-word;">
+                As per our telephonic conversation and as agreed, I, <strong>${data.cardholderName}</strong>, 
+                authorize <strong>${data.companyName || "the merchant"}</strong> to charge <strong>USD ${data.amount}</strong> 
+                to the above credit card for <strong>${data.serviceDetails}</strong>.
               </p>
               <div class="terms-inner" style="background-color: #ffffff; padding: 15px; border-radius: 6px; border-left: 3px solid #ef4444; margin-top: 15px;">
                 <p style="margin: 0; color: #313131ff; font-size: 14px; font-weight: 600;">
@@ -374,7 +419,6 @@ const authorizePayment = async (req, res) => {
           • ${data.companyName} may charge refund/change fees<br />
         </div>
 
-
             <!-- Timestamp -->
             <div style="text-align: center; padding: 20px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 20px;">
                 <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
@@ -396,16 +440,14 @@ const authorizePayment = async (req, res) => {
                 This is an automated notification from your payment system.
             </p>
             <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 12px; line-height: 1.4;">
-                © ${new Date().getFullYear()} ${
-      data.companyName || "Your Merchant"
-    }. All rights reserved.
+                © ${new Date().getFullYear()} ${data.companyName || "Your Merchant"}. All rights reserved.
             </p>
         </div>
 
     </div>
 </body>
 </html>
-`;
+    `;
 
     const adminMailOptions = {
       from: "bookings@myfaredeal.com",

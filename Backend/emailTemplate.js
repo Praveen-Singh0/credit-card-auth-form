@@ -4,32 +4,97 @@ const generateEmailTemplate = (data) => {
     : '<li style="margin: 5px 0; color: #6b7280;">No passengers listed</li>';
 
 
-     const cleanFlightSummary = (htmlContent) => {
+     // Enhanced flight summary with editor-like styling and scroll
+  const createFlightSummaryEditor = (htmlContent) => {
     if (!htmlContent || htmlContent.trim() === '') {
-      return '<p style="color: #6b7280; font-style: italic;">No flight details provided</p>';
+      return `
+        <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Courier New', Monaco, monospace; overflow: hidden;">
+          <!-- Editor Header -->
+          <div style="background-color: #f8fafc; border-bottom: 1px solid #e5e7eb; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center;">
+              <span style="color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Flight Summary</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ef4444;"></div>
+              <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f59e0b;"></div>
+              <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #10b981;"></div>
+            </div>
+          </div>
+          <!-- Editor Content -->
+          <div style="padding: 20px; max-height: 300px; overflow-y: auto; background-color: #ffffff; color: #6b7280; font-style: italic; text-align: center; font-size: 14px; line-height: 1.6;">
+            <div style="padding: 40px 20px;">
+              <div style="font-size: 32px; margin-bottom: 16px;">📄</div>
+              <p style="margin: 0; color: #9ca3af;">No flight details provided</p>
+            </div>
+          </div>
+        </div>
+      `;
     }
-    
-    // Remove any script tags for security
+
+
+
+ // Remove script tags for security
     const cleanHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     
-    // Ensure proper styling for email compatibility
-    return cleanHtml
-      .replace(/<p>/g, '<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6;">')
-      .replace(/<h1>/g, '<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 24px; font-weight: 700;">')
-      .replace(/<h2>/g, '<h2 style="color: #1f2937; margin: 18px 0 8px 0; font-size: 20px; font-weight: 600;">')
-      .replace(/<h3>/g, '<h3 style="color: #1f2937; margin: 16px 0 6px 0; font-size: 18px; font-weight: 600;">')
-      .replace(/<ul>/g, '<ul style="margin: 10px 0; padding-left: 20px; color: #374151;">')
-      .replace(/<ol>/g, '<ol style="margin: 10px 0; padding-left: 20px; color: #374151;">')
-      .replace(/<li>/g, '<li style="margin: 5px 0; color: #374151; line-height: 1.5;">')
+    // Enhanced styling for email compatibility
+    const styledContent = cleanHtml
+      .replace(/<p>/g, '<p style="margin: 0 0 12px 0; color: #374151; line-height: 1.7; font-size: 14px;">')
+      .replace(/<h1>/g, '<h1 style="color: #1f2937; margin: 24px 0 12px 0; font-size: 20px; font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">')
+      .replace(/<h2>/g, '<h2 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 18px; font-weight: 600; border-bottom: 1px solid #f3f4f6; padding-bottom: 6px;">')
+      .replace(/<h3>/g, '<h3 style="color: #1f2937; margin: 16px 0 8px 0; font-size: 16px; font-weight: 600;">')
+      .replace(/<ul>/g, '<ul style="margin: 12px 0; padding-left: 24px; color: #374151;">')
+      .replace(/<ol>/g, '<ol style="margin: 12px 0; padding-left: 24px; color: #374151;">')
+      .replace(/<li>/g, '<li style="margin: 6px 0; color: #374151; line-height: 1.6;">')
       .replace(/<strong>/g, '<strong style="font-weight: 700; color: #1f2937;">')
       .replace(/<em>/g, '<em style="font-style: italic; color: #4b5563;">')
-      .replace(/<a /g, '<a style="color: #3b82f6; text-decoration: none;" ')
-      .replace(/<img /g, '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0;" ')
-      .replace(/<table>/g, '<table style="width: 100%; border-collapse: collapse; margin: 15px 0;">')
-      .replace(/<td>/g, '<td style="padding: 8px; border: 1px solid #e5e7eb; color: #374151;">')
-      .replace(/<th>/g, '<th style="padding: 8px; border: 1px solid #e5e7eb; background-color: #f3f4f6; color: #1f2937; font-weight: 600; text-align: left;">')
-      .replace(/<div>/g, '<div style="margin: 5px 0;">')
+      .replace(/<a /g, '<a style="color: #3b82f6; text-decoration: underline; hover: color: #1d4ed8;" ')
+      .replace(/<img /g, '<img style="max-width: 100%; height: auto; border-radius: 6px; margin: 12px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" ')
+      .replace(/<table>/g, '<table style="width: 100%; border-collapse: collapse; margin: 16px 0; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">')
+      .replace(/<td>/g, '<td style="padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px; line-height: 1.5;">')
+      .replace(/<th>/g, '<th style="padding: 12px; background-color: #f8fafc; color: #1f2937; font-weight: 600; text-align: left; font-size: 13px; border-bottom: 2px solid #e5e7eb;">')
+      .replace(/<div>/g, '<div style="margin: 8px 0;">')
       .replace(/<br>/g, '<br/>');
+
+
+    return `
+      <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Courier New', Monaco, monospace; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <!-- Editor Header -->
+        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-bottom: 1px solid #e5e7eb; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #475569; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">✈️ Flight Summary</span>
+            <span style="color: #94a3b8; font-size: 10px;">• Read Only</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ef4444; opacity: 0.7;"></div>
+            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f59e0b; opacity: 0.7;"></div>
+            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #10b981; opacity: 0.7;"></div>
+          </div>
+        </div>
+        
+        <!-- Toolbar (Read-only visual) -->
+        <div style="background-color: #fafafa; border-bottom: 1px solid #e5e7eb; padding: 8px 12px; font-size: 11px;">
+          <div style="display: flex; gap: 8px; align-items: center; opacity: 0.6;">
+            <span style="padding: 4px 8px; background-color: #e5e7eb; border-radius: 3px; color: #6b7280; font-weight: 600;">B</span>
+            <span style="padding: 4px 8px; background-color: #e5e7eb; border-radius: 3px; color: #6b7280; font-style: italic;">I</span>
+            <span style="padding: 4px 8px; background-color: #e5e7eb; border-radius: 3px; color: #6b7280; text-decoration: underline;">U</span>
+            <span style="width: 1px; height: 16px; background-color: #d1d5db;"></span>
+            <span style="padding: 4px 8px; background-color: #e5e7eb; border-radius: 3px; color: #6b7280; font-size: 10px;">• List</span>
+            <span style="padding: 4px 8px; background-color: #e5e7eb; border-radius: 3px; color: #6b7280; font-size: 10px;">📷</span>
+            <span style="padding: 4px 8px; background-color: #e5e7eb; border-radius: 3px; color: #6b7280; font-size: 10px;">🔗</span>
+          </div>
+        </div>
+        
+        <!-- Editor Content with Scroll -->
+        <div style="padding: 20px; max-height: 350px; overflow-y: auto; background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+          ${styledContent}
+        </div>
+        
+        <!-- Status Bar -->
+        <div style="background-color: #f8fafc; border-top: 1px solid #e5e7eb; padding: 6px 12px; font-size: 10px; color: #6b7280; text-align: right;">
+          <span>📄 Flight Details • Read Only Mode</span>
+        </div>
+      </div>
+    `;
   };
 
 
@@ -41,7 +106,23 @@ const generateEmailTemplate = (data) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Credit Card Authorization Request</title>
-        <style>
+       <style>
+        /* Scrollbar Styling */
+        .flight-editor-content::-webkit-scrollbar {
+          width: 8px;
+        }
+        .flight-editor-content::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        .flight-editor-content::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .flight-editor-content::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+        
         /* Mobile-first responsive styles */
         @media only screen and (max-width: 600px) {
           .container {
@@ -55,81 +136,32 @@ const generateEmailTemplate = (data) => {
             font-size: 22px !important;
             line-height: 1.3 !important;
           }
-          .header p {
-            font-size: 14px !important;
-          }
           .content {
             padding: 25px 20px !important;
           }
           .section-title {
             font-size: 18px !important;
-            flex-direction: column !important;
-            align-items: flex-start !important;
-          }
-          .section-title span {
-            margin-right: 0 !important;
-            margin-bottom: 5px !important;
           }
           .info-box {
             padding: 20px 15px !important;
             margin-bottom: 25px !important;
           }
-          .info-table {
-            font-size: 14px !important;
+          .flight-editor {
+            margin: 0 -15px !important;
           }
-          .info-table td {
-            padding: 8px 0 !important;
-            display: block !important;
-            width: 100% !important;
-          }
-          .info-table td:first-child {
-            font-weight: 700 !important;
-            margin-bottom: 3px !important;
-            color: #1f2937 !important;
-          }
-          .amount-row td {
-            font-size: 16px !important;
-          }
-          .auth-text {
-            font-size: 14px !important;
-            line-height: 1.6 !important;
-          }
-          .terms-box {
-            max-height: 200px !important;
-            font-size: 12px !important;
+          .flight-editor-content {
+            max-height: 250px !important;
             padding: 15px !important;
           }
-          .cta-button {
-            padding: 15px 25px !important;
-            font-size: 14px !important;
-            letter-spacing: 0.5px !important;
+          .editor-header {
+            padding: 10px 15px !important;
           }
-          .signature-box {
-            padding: 15px !important;
+          .editor-toolbar {
+            padding: 6px 15px !important;
           }
-          .signature-text {
-            font-size: 16px !important;
-            padding: 8px !important;
-          }
-          .footer {
-            padding: 20px 15px !important;
-          }
-          .welcome-box {
-            padding: 15px !important;
-            margin-bottom: 25px !important;
-          }
-          .terms-inner {
-            padding: 12px !important;
-          }
-          .flight-summary-content {
-            font-size: 14px !important;
-          }
-          .flight-summary-content img {
-            max-width: 100% !important;
-            height: auto !important;
-          }
-          .flight-summary-content table {
-            font-size: 12px !important;
+          .editor-toolbar span {
+            padding: 3px 6px !important;
+            font-size: 9px !important;
           }
         }
       </style>
@@ -195,17 +227,16 @@ const generateEmailTemplate = (data) => {
             </div>
           </div>
  
-          <!-- Booking Details Section -->
+         <!-- Flight Details Section with Editor-like Display -->
           <div style="margin-bottom: 35px;">
             <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
               <span style="margin-right: 10px;">📋</span> Flight Details
             </h2>
-            <div class="info-box" style="background-color: #fefce8; padding: 25px; border-radius: 10px; border: 1px solid #fde047; border-left: 4px solid #eab308;">
-              <div class="flight-summary-content" style="color: #374151; font-size: 15px; line-height: 1.7; word-break: break-word;">
-                ${cleanFlightSummary(data.flightSummary)}
-              </div>
+            <div class="flight-editor" style="margin: 0 -5px;">
+              ${createFlightSummaryEditor(data.flightSummary)}
             </div>
           </div>
+
 
           <!-- Payment Information Section -->
           <div style="margin-bottom: 35px;">
