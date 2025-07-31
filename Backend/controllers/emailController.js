@@ -55,6 +55,36 @@ const authorizePayment = async (req, res) => {
       return res.status(400).send("Authorization link has expired.");
     }
 
+    // Clean and format the flight summary HTML content for admin email
+    const cleanFlightSummary = (htmlContent) => {
+      if (!htmlContent || htmlContent.trim() === '') {
+        return '<p style="color: #6b7280; font-style: italic;">No flight details provided</p>';
+      }
+      
+      // Remove any script tags for security
+      const cleanHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      
+      // Ensure proper styling for email compatibility
+      return cleanHtml
+        .replace(/<p>/g, '<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6;">')
+        .replace(/<h1>/g, '<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 20px; font-weight: 700;">')
+        .replace(/<h2>/g, '<h2 style="color: #1f2937; margin: 18px 0 8px 0; font-size: 18px; font-weight: 600;">')
+        .replace(/<h3>/g, '<h3 style="color: #1f2937; margin: 16px 0 6px 0; font-size: 16px; font-weight: 600;">')
+        .replace(/<ul>/g, '<ul style="margin: 10px 0; padding-left: 20px; color: #374151;">')
+        .replace(/<ol>/g, '<ol style="margin: 10px 0; padding-left: 20px; color: #374151;">')
+        .replace(/<li>/g, '<li style="margin: 5px 0; color: #374151; line-height: 1.5;">')
+        .replace(/<strong>/g, '<strong style="font-weight: 700; color: #1f2937;">')
+        .replace(/<em>/g, '<em style="font-style: italic; color: #4b5563;">')
+        .replace(/<a /g, '<a style="color: #3b82f6; text-decoration: none;" ')
+        .replace(/<img /g, '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0;" ')
+        .replace(/<table>/g, '<table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px;">')
+        .replace(/<td>/g, '<td style="padding: 6px 8px; border: 1px solid #e5e7eb; color: #374151;">')
+        .replace(/<th>/g, '<th style="padding: 6px 8px; border: 1px solid #e5e7eb; background-color: #f3f4f6; color: #1f2937; font-weight: 600; text-align: left; font-size: 12px;">')
+        .replace(/<div>/g, '<div style="margin: 5px 0;">')
+        .replace(/<br>/g, '<br/>');
+    };
+
+
     // === SEND EMAIL TO ADMIN ===
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -72,7 +102,7 @@ const authorizePayment = async (req, res) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Authorization Notification</title>
-    <style>
+   <style>
         /* Mobile-first responsive styles */
         @media only screen and (max-width: 600px) {
             .container {
@@ -121,6 +151,16 @@ const authorizePayment = async (req, res) => {
                 padding: 15px !important;
             }
             .footer p {
+                font-size: 11px !important;
+            }
+            .flight-summary-content {
+                font-size: 12px !important;
+            }
+            .flight-summary-content img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            .flight-summary-content table {
                 font-size: 11px !important;
             }
         }
@@ -189,6 +229,19 @@ const authorizePayment = async (req, res) => {
                             }</td>
                         </tr>
                     </table>
+                </div>
+            </div>
+
+
+             <!-- Flight Details Section -->
+            <div style="margin-bottom: 30px;">
+                <h2 class="section-title" style="color: #1f2937; font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                    ✈️ Flight Details
+                </h2>
+                <div class="info-box" style="background-color: #fefce8; padding: 20px; border-radius: 8px; border-left: 4px solid #eab308;">
+                    <div class="flight-summary-content" style="color: #374151; font-size: 14px; line-height: 1.6; word-break: break-word;">
+                        ${cleanFlightSummary(data.flightSummary)}
+                    </div>
                 </div>
             </div>
 

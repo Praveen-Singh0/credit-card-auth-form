@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
   const [formData, setFormData] = useState({
     bookingReference: "",
     customerEmail: "",
     passengers: [""],
-    bookingDetails: "",
+    flightSummary: "",
     cardholderName: "",
     cardNumber: "",
     expiryDate: "",
@@ -24,6 +24,9 @@ export default function Home() {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const editorRef = useRef(null);
+
 
   // Format card number with spaces every 4 digits
   const formatCardNumber = (value) => {
@@ -163,6 +166,33 @@ export default function Home() {
       [id]: error,
     }));
   };
+
+  // Handle rich text editor content changes
+  const handleEditorChange = () => {
+    if (editorRef.current) {
+      const content = editorRef.current.innerHTML;
+      setFormData((prevState) => ({
+        ...prevState,
+        flightSummary: content,
+      }));
+    }
+  };
+
+ // Rich text editor functions
+  const execCommand = (command, value = null) => {
+    document.execCommand(command, false, value);
+    editorRef.current.focus();
+    handleEditorChange();
+  };
+
+  const insertImage = () => {
+    const url = prompt('Enter image URL:');
+    if (url) {
+      execCommand('insertImage', url);
+    }
+  };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -381,7 +411,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Booking Details */}
+            {/* Flight Summary with Rich Text Editor */}
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
                 <svg
@@ -397,16 +427,99 @@ export default function Home() {
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                Booking Details
+                Flight Summary
               </h3>
-              <textarea
-                id="bookingDetails"
-                rows="5"
-                value={formData.bookingDetails}
-                onChange={handleChange}
-                placeholder="Enter detailed booking information including flight dates, destinations, and any special requirements..."
-                className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-              ></textarea>
+              
+              {/* Rich Text Editor Toolbar */}
+              <div className="bg-white border-2 border-gray-300 rounded-t-lg p-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => execCommand('bold')}
+                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100 font-bold"
+                  title="Bold"
+                >
+                  B
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('italic')}
+                  className="px-3 text-black py-1 border border-gray-300 rounded hover:bg-gray-100 italic"
+                  title="Italic"
+                >
+                  I
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('underline')}
+                  className="px-3 text-black py-1 border border-gray-300 rounded hover:bg-gray-100 underline"
+                  title="Underline"
+                >
+                  U
+                </button>
+                <div className="w-px bg-gray-300 mx-1"></div>
+                <button
+                  type="button"
+                  onClick={() => execCommand('insertUnorderedList')}
+                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
+                  title="Bullet List"
+                >
+                  • List
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('insertOrderedList')}
+                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
+                  title="Numbered List"
+                >
+                  1. List
+                </button>
+                <div className="w-px bg-gray-300 mx-1"></div>
+                <button
+                  type="button"
+                  onClick={insertImage}
+                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
+                  title="Insert Image"
+                >
+                  📷 Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('createLink', prompt('Enter URL:'))}
+                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
+                  title="Insert Link"
+                >
+                  🔗 Link
+                </button>
+                <div className="w-px bg-gray-300 mx-1"></div>
+                <select
+                  onChange={(e) => execCommand('formatBlock', e.target.value)}
+                  className="px-2  text-black py-1 border border-gray-300 rounded"
+                  defaultValue=""
+                >
+                  <option value="">Format</option>
+                  <option value="h1">Heading 1</option>
+                  <option value="h2">Heading 2</option>
+                  <option value="h3">Heading 3</option>
+                  <option value="p">Paragraph</option>
+                </select>
+              </div>
+
+              {/* Rich Text Editor */}
+              <div
+                ref={editorRef}
+                contentEditable={true}
+                onInput={handleEditorChange}
+                onPaste={handleEditorChange}
+                className="text-black w-full min-h-32 max-h-64 overflow-y-auto px-4 py-3 bg-white border-2 border-t-0 border-gray-300 rounded-b-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                style={{
+                  minHeight: '128px',
+                  maxHeight: '400px'
+                }}
+                suppressContentEditableWarning={true}
+                data-placeholder="Enter detailed booking information including flight dates, destinations, and any special requirements. You can paste images, format text, and add links..."
+              />
+              
+              
             </div>
 
             {/* Credit Card Information */}
