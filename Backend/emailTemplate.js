@@ -1,70 +1,201 @@
 const generateEmailTemplate = (data) => {
-  const passengersList = data.passengers && data.passengers.length
-    ? data.passengers.map(p => `<li style="margin: 8px 0; color: #475569; font-weight: 500;">${p}</li>`).join('')
-    : '<li style="margin: 8px 0; color: #94a3b8; font-style: italic;">No passengers listed</li>';
+  const passengersList =
+    data.passengers && data.passengers.length
+      ? data.passengers
+          .map((p) => `<li style="margin: 5px 0; color: #374151;">${p}</li>`)
+          .join("")
+      : '<li style="margin: 5px 0; color: #6b7280;">No passengers listed</li>';
 
-  // Keep the original Flight Summary Editor (unchanged)
-  const createFlightSummaryEditor = (htmlContent) => {
-    if (!htmlContent || htmlContent.trim() === '') {
-      return `
-        <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Courier New', Monaco, monospace; overflow: hidden;">
-          <!-- Editor Header -->
-          <div style="background-color: #f8fafc; border-bottom: 1px solid #e5e7eb; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center;">
-              <span style="color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Flight Summary</span>
-            </div>
-            <div style="display: flex; gap: 6px;">
-              <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ef4444;"></div>
-              <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f59e0b;"></div>
-              <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #10b981;"></div>
-            </div>
-          </div>
-          <!-- Editor Content -->
-          <div style="padding: 20px; max-height: 300px; overflow-y: auto; background-color: #ffffff; color: #6b7280; font-style: italic; text-align: center; font-size: 14px; line-height: 1.6;">
-            <div style="padding: 40px 20px;">
-              <div style="font-size: 32px; margin-bottom: 16px;">📄</div>
-              <p style="margin: 0; color: #9ca3af;">No flight details provided</p>
-            </div>
-          </div>
-        </div>
-      `;
+  // Analyze flight summary content to determine container size
+  const analyzeFlightSummary = (htmlContent) => {
+    if (!htmlContent || htmlContent.trim() === "") {
+      return { hasContent: false, contentLength: 0, hasTables: false, hasLongText: false };
+    }
+    
+    // Remove HTML tags to get text length
+    const textContent = htmlContent.replace(/<[^>]*>/g, '');
+    const contentLength = textContent.length;
+    
+    // Check for tables
+    const hasTables = htmlContent.includes('<table') || htmlContent.includes('<tr') || htmlContent.includes('<td');
+    
+    // Check for long text (more than 500 characters)
+    const hasLongText = contentLength > 500;
+    
+    // Check for multiple paragraphs or complex structure
+    const paragraphCount = (htmlContent.match(/<p[^>]*>/g) || []).length;
+    const listCount = (htmlContent.match(/<[uo]l[^>]*>/g) || []).length;
+    const headingCount = (htmlContent.match(/<h[1-6][^>]*>/g) || []).length;
+    
+    const isComplex = paragraphCount > 3 || listCount > 1 || headingCount > 2 || hasTables;
+    
+    return {
+      hasContent: true,
+      contentLength,
+      hasTables,
+      hasLongText,
+      isComplex,
+      paragraphCount,
+      listCount,
+      headingCount
+    };
+  };
+
+  const flightSummaryAnalysis = analyzeFlightSummary(data.flightSummary);
+  
+  // Determine container size based on flight summary content
+  let containerWidth, containerFontSize, containerClass;
+  
+  if (!flightSummaryAnalysis.hasContent || flightSummaryAnalysis.contentLength < 100) {
+    // Minimal content - smaller size
+    containerWidth = '650px';
+    containerFontSize = 'medium';
+    containerClass = 'container-medium';
+  } else if (flightSummaryAnalysis.isComplex || flightSummaryAnalysis.hasTables || flightSummaryAnalysis.contentLength > 1000) {
+    // Complex content or long text - very small container
+    containerWidth = '500px';
+    containerFontSize = 'small';
+    containerClass = 'container-small';
+  } else if (flightSummaryAnalysis.contentLength > 500) {
+    // Medium content - small container
+    containerWidth = '550px';
+    containerFontSize = 'small';
+    containerClass = 'container-small';
+  } else {
+    // Default - medium size
+    containerWidth = '650px';
+    containerFontSize = 'medium';
+    containerClass = 'container-medium';
+  }
+
+  const cleanFlightSummary = (htmlContent) => {
+    if (!htmlContent || htmlContent.trim() === "") {
+      return '<p style="color: #6b7280; font-style: italic;">No flight details provided</p>';
     }
 
-    // Remove script tags for security
-    const cleanHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    
-    // Enhanced styling for email compatibility
-    const styledContent = cleanHtml
-      .replace(/<p>/g, '<p style="margin: 0 0 12px 0; color: #374151; line-height: 1.7; font-size: 14px;">')
-      .replace(/<h1>/g, '<h1 style="color: #1f2937; margin: 24px 0 12px 0; font-size: 20px; font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">')
-      .replace(/<h2>/g, '<h2 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 18px; font-weight: 600; border-bottom: 1px solid #f3f4f6; padding-bottom: 6px;">')
-      .replace(/<h3>/g, '<h3 style="color: #1f2937; margin: 16px 0 8px 0; font-size: 16px; font-weight: 600;">')
-      .replace(/<ul>/g, '<ul style="margin: 12px 0; padding-left: 24px; color: #374151;">')
-      .replace(/<ol>/g, '<ol style="margin: 12px 0; padding-left: 24px; color: #374151;">')
-      .replace(/<li>/g, '<li style="margin: 6px 0; color: #374151; line-height: 1.6;">')
-      .replace(/<strong>/g, '<strong style="font-weight: 700; color: #1f2937;">')
-      .replace(/<em>/g, '<em style="font-style: italic; color: #4b5563;">')
-      .replace(/<a /g, '<a style="color: #3b82f6; text-decoration: underline; hover: color: #1d4ed8;" ')
-      .replace(/<img /g, '<img style="max-width: 100%; height: auto; border-radius: 6px; margin: 12px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" ')
-      .replace(/<table>/g, '<table style="width: 100%; border-collapse: collapse; margin: 16px 0; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">')
-      .replace(/<td>/g, '<td style="padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px; line-height: 1.5;">')
-      .replace(/<th>/g, '<th style="padding: 12px; background-color: #f8fafc; color: #1f2937; font-weight: 600; text-align: left; font-size: 13px; border-bottom: 2px solid #e5e7eb;">')
-      .replace(/<div>/g, '<div style="margin: 8px 0;">')
-      .replace(/<br>/g, '<br/>');
+    // Remove any script tags for security
+    const cleanHtml = htmlContent.replace(
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      ""
+    );
 
-    return `
-      <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Courier New', Monaco, monospace; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-        <!-- Editor Content with Scroll -->
-        <div style="padding: 20px; max-height: 350px; overflow-y: auto; background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
-          ${styledContent}
-        </div>
-        
-        <!-- Status Bar -->
-        <div style="background-color: #f8fafc; border-top: 1px solid #e5e7eb; padding: 6px 12px; font-size: 10px; color: #6b7280; text-align: right;">
-          <span>📄 Flight Details • Read Only Mode</span>
-        </div>
-      </div>
-    `;
+    // Get font sizes based on container size
+    const getFontSizes = () => {
+      if (containerFontSize === 'small') {
+        return {
+          p: '10px',
+          h1: '14px',
+          h2: '12px',
+          h3: '11px',
+          li: '9px',
+          table: '9px',
+          td: '9px',
+          th: '9px',
+          pre: '9px',
+          code: '9px'
+        };
+      } else if (containerFontSize === 'medium') {
+        return {
+          p: '12px',
+          h1: '16px',
+          h2: '14px',
+          h3: '12px',
+          li: '11px',
+          table: '11px',
+          td: '11px',
+          th: '11px',
+          pre: '11px',
+          code: '11px'
+        };
+      } else {
+        return {
+          p: '14px',
+          h1: '20px',
+          h2: '16px',
+          h3: '14px',
+          li: '12px',
+          table: '12px',
+          td: '12px',
+          th: '12px',
+          pre: '12px',
+          code: '12px'
+        };
+      }
+    };
+
+    const fontSizes = getFontSizes();
+
+    // Ensure proper styling for email compatibility with responsive design
+    return (
+      cleanHtml
+        .replace(
+          /<p>/g,
+          `<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.p};">`
+        )
+        .replace(
+          /<h1>/g,
+          `<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: ${fontSizes.h1}; font-weight: 700; word-wrap: break-word; overflow-wrap: break-word;">`
+        )
+        .replace(
+          /<h2>/g,
+          `<h2 style="color: #1f2937; margin: 18px 0 8px 0; font-size: ${fontSizes.h2}; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word;">`
+        )
+        .replace(
+          /<h3>/g,
+          `<h3 style="color: #1f2937; margin: 16px 0 6px 0; font-size: ${fontSizes.h3}; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word;">`
+        )
+        .replace(
+          /<ul>/g,
+          '<ul style="margin: 10px 0; padding-left: 20px; color: #374151; word-wrap: break-word; overflow-wrap: break-word;">'
+        )
+        .replace(
+          /<ol>/g,
+          '<ol style="margin: 10px 0; padding-left: 20px; color: #374151; word-wrap: break-word; overflow-wrap: break-word;">'
+        )
+        .replace(
+          /<li>/g,
+          `<li style="margin: 5px 0; color: #374151; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.li};">`
+        )
+        .replace(
+          /<strong>/g,
+          '<strong style="font-weight: 700; color: #1f2937;">'
+        )
+        .replace(/<em>/g, '<em style="font-style: italic; color: #4b5563;">')
+        .replace(
+          /<a /g,
+          '<a style="color: #3b82f6; text-decoration: none; word-wrap: break-word; overflow-wrap: break-word;" '
+        )
+        .replace(
+          /<img /g,
+          '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0; display: block;" '
+        )
+        .replace(
+          /<table>/g,
+          `<table style="width: 100%; max-width: 100%; border-collapse: collapse; margin: 15px 0; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.table};">`
+        )
+        .replace(
+          /<td>/g,
+          `<td style="padding: 8px; border: 1px solid #e5e7eb; color: #374151; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; font-size: ${fontSizes.td};">`
+        )
+        .replace(
+          /<th>/g,
+          `<th style="padding: 8px; border: 1px solid #e5e7eb; background-color: #f3f4f6; color: #1f2937; font-weight: 600; text-align: left; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; font-size: ${fontSizes.th};">`
+        )
+        .replace(
+          /<div>/g,
+          '<div style="margin: 5px 0; word-wrap: break-word; overflow-wrap: break-word;">'
+        )
+        .replace(/<br>/g, "<br/>")
+        // Add specific handling for any remaining elements that might cause overflow
+        .replace(
+          /<pre>/g,
+          `<pre style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.pre}; overflow-x: auto;">`
+        )
+        .replace(
+          /<code>/g,
+          `<code style="word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.code};">`
+        )
+    );
   };
 
   return `
@@ -73,7 +204,9 @@ const generateEmailTemplate = (data) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Payment Authorization Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+
+      <title>Credit Card Authorization Request</title>
       <style>
         /* Reset styles */
         * {
@@ -87,323 +220,937 @@ const generateEmailTemplate = (data) => {
           line-height: 1.6;
           -webkit-text-size-adjust: 100%;
           -ms-text-size-adjust: 100%;
+          overflow-x: hidden;
+          min-width: 750px;
+        
         }
         
-        /* Scrollbar styling for flight editor */
-        .flight-editor-content::-webkit-scrollbar {
-          width: 8px;
+        .container {
+          max-width: 750px;
+          width: 100%;
+          margin: 20px auto;
+          background-color: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          overflow: hidden;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         }
-        .flight-editor-content::-webkit-scrollbar-track {
+        
+        /* Dynamic container sizing based on content */
+        .container-normal {
+          max-width: 700px !important;
+          font-size: 15px !important;
+        }
+        
+        .container-medium {
+          max-width: 650px !important;
+          font-size: 13px !important;
+        }
+        
+        .container-small {
+          max-width: 550px !important;
+          font-size: 11px !important;
+        }
+        
+        /* Adjust all text elements based on container size */
+        .container-small h1 {
+          font-size: 16px !important;
+        }
+        
+        .container-small h2 {
+          font-size: 14px !important;
+        }
+        
+        .container-small h3 {
+          font-size: 12px !important;
+        }
+        
+        .container-small p {
+          font-size: 11px !important;
+        }
+        
+        .container-small li {
+          font-size: 10px !important;
+        }
+        
+        .container-small table th,
+        .container-small table td {
+          font-size: 10px !important;
+          padding: 4px 6px !important;
+        }
+        
+        .container-medium h1 {
+          font-size: 20px !important;
+        }
+        
+        .container-medium h2 {
+          font-size: 18px !important;
+        }
+        
+        .container-medium h3 {
+          font-size: 16px !important;
+        }
+        
+        .container-medium p {
+          font-size: 14px !important;
+        }
+        
+        .container-medium li {
+          font-size: 13px !important;
+        }
+        
+        .container-medium table th,
+        .container-medium table td {
+          font-size: 13px !important;
+          padding: 8px 10px !important;
+        }
+        
+        /* Flight summary specific styling to prevent overflow */
+        .flight-summary-container {
+          max-width: 100%;
+          overflow-x: auto;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        
+        .flight-summary-content {
+          width: 100%;
+          max-width: 100%;
+        }
+        
+        .flight-summary-content * {
+          max-width: 100% !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+          box-sizing: border-box !important;
+        }
+        
+        .flight-summary-content table {
+          width: 100% !important;
+        }
+        
+        .flight-summary-content img {
+          max-width: 100% !important;
+          height: auto !important;
+          display: block !important;
+        }
+        
+        /* Scrollbar styling for flight summary if needed */
+        .flight-summary-container::-webkit-scrollbar {
+          height: 6px;
+        }
+        .flight-summary-container::-webkit-scrollbar-track {
           background: #f1f5f9;
-          border-radius: 4px;
+          border-radius: 3px;
         }
-        .flight-editor-content::-webkit-scrollbar-thumb {
+        .flight-summary-container::-webkit-scrollbar-thumb {
           background: #cbd5e1;
-          border-radius: 4px;
+          border-radius: 3px;
         }
-        .flight-editor-content::-webkit-scrollbar-thumb:hover {
+        .flight-summary-container::-webkit-scrollbar-thumb:hover {
           background: #94a3b8;
         }
-        
-        /* Mobile responsive styles */
-        @media only screen and (max-width: 768px) {
-          .hero-section {
-            padding: 40px 20px !important;
+
+        /* Mobile responsive styles for flight summary */
+        @media (max-width: 768px) {
+          .flight-summary-container {
+            padding: 15px !important;
           }
-          .hero-title {
-            font-size: 28px !important;
+          
+          .flight-summary-content {
+            font-size: 13px !important;
+            line-height: 1.4 !important;
+          }
+          
+          .flight-summary-content h1 {
+            font-size: 18px !important;
+            margin: 15px 0 8px 0 !important;
+          }
+          
+          .flight-summary-content h2 {
+            font-size: 16px !important;
+            margin: 12px 0 6px 0 !important;
+          }
+          
+          .flight-summary-content h3 {
+            font-size: 14px !important;
+            margin: 10px 0 5px 0 !important;
+          }
+          
+          .flight-summary-content p {
+            font-size: 13px !important;
+            margin: 0 0 8px 0 !important;
+            line-height: 1.4 !important;
+          }
+          
+          .flight-summary-content ul,
+          .flight-summary-content ol {
+            margin: 8px 0 !important;
+            padding-left: 15px !important;
+          }
+          
+          .flight-summary-content li {
+            font-size: 12px !important;
+            margin: 3px 0 !important;
+            line-height: 1.3 !important;
+          }
+          
+          .flight-summary-content table {
+            font-size: 11px !important;
+          }
+          
+          .flight-summary-content th,
+          .flight-summary-content td {
+            padding: 6px 8px !important;
+            font-size: 11px !important;
+          }
+          
+          .flight-summary-content strong {
+            font-size: 13px !important;
+          }
+          
+          .flight-summary-content em {
+            font-size: 12px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .flight-summary-container {
+            padding: 0px !important;
+          }
+          
+          .flight-summary-content {
+            font-size: 10px !important;
+            line-height: 1.3 !important;
+          }
+          
+          .flight-summary-content h1 {
+            font-size: 16px !important;
+            margin: 12px 0 6px 0 !important;
+          }
+          
+          .flight-summary-content h2 {
+            font-size: 14px !important;
+            margin: 10px 0 5px 0 !important;
+          }
+          
+          .flight-summary-content h3 {
+            font-size: 13px !important;
+            margin: 8px 0 4px 0 !important;
+          }
+          
+          .flight-summary-content p {
+            font-size: 12px !important;
+            margin: 0 0 6px 0 !important;
+            line-height: 1.3 !important;
+          }
+          
+          .flight-summary-content ul,
+          .flight-summary-content ol {
+            margin: 6px 0 !important;
+            padding-left: 12px !important;
+          }
+          
+          .flight-summary-content li {
+            font-size: 11px !important;
+            margin: 2px 0 !important;
             line-height: 1.2 !important;
           }
-          .content-section {
-            padding: 30px 20px !important;
+          
+          .flight-summary-content table {
+            font-size: 10px !important;
           }
-          .info-grid {
-            grid-template-columns: 1fr !important;
-            gap: 20px !important;
+          
+          .flight-summary-content th,
+          .flight-summary-content td {
+            padding: 2px 4px !important;
+            font-size: 10px !important;
           }
-          .payment-card {
-            padding: 25px 20px !important;
+          
+          .flight-summary-content strong {
+            font-size: 12px !important;
           }
-          .amount-display {
-            font-size: 36px !important;
+          
+          .flight-summary-content em {
+            font-size: 11px !important;
           }
-          .cta-button {
-            padding: 16px 32px !important;
-            font-size: 16px !important;
+        }
+
+        @media (max-width: 360px) {
+          .flight-summary-container {
+            padding: 0px !important;
           }
-          .flight-section {
-            margin: 0 -10px !important;
+          
+          .flight-summary-content {
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+          }
+          
+          .flight-summary-content h1 {
+            font-size: 15px !important;
+            margin: 10px 0 5px 0 !important;
+          }
+          
+          .flight-summary-content h2 {
+            font-size: 13px !important;
+            margin: 8px 0 4px 0 !important;
+          }
+          
+          .flight-summary-content h3 {
+            font-size: 12px !important;
+            margin: 6px 0 3px 0 !important;
+          }
+          
+          .flight-summary-content p {
+            font-size: 11px !important;
+            margin: 0 0 5px 0 !important;
+            line-height: 1.2 !important;
+          }
+          
+          .flight-summary-content ul,
+          .flight-summary-content ol {
+            margin: 5px 0 !important;
+            padding-left: 10px !important;
+          }
+          
+          .flight-summary-content li {
+            font-size: 10px !important;
+            margin: 2px 0 !important;
+            line-height: 1.1 !important;
+          }
+          
+          .flight-summary-content table {
+            font-size: 9px !important;
+          }
+          
+          .flight-summary-content th,
+          .flight-summary-content td {
+            padding: 3px 4px !important;
+            font-size: 9px !important;
+          }
+          
+          .flight-summary-content strong {
+            font-size: 11px !important;
+          }
+          
+          .flight-summary-content em {
+            font-size: 10px !important;
           }
         }
         
-        @media only screen and (max-width: 480px) {
-          .hero-section {
-            padding: 30px 15px !important;
-          }
-          .hero-title {
-            font-size: 24px !important;
-          }
-          .content-section {
-            padding: 25px 15px !important;
-          }
-          .payment-card {
-            padding: 20px 15px !important;
-          }
-          .amount-display {
-            font-size: 28px !important;
-          }
-          .flight-section {
-            margin: 0 -5px !important;
-          }
+        /* Ensure all content fits within container */
+        .content-wrapper {
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         }
+
+        @media (max-width: 480px) {
+    .section-title {
+      font-size: 16px !important;
+      margin-bottom: 12px !important;
+    }
+    
+    table th, table td {
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+    }
+    
+    table th {
+      font-size: 13px !important;
+    }
+    
+    .total-row td {
+      font-size: 15px !important;
+      padding: 14px 12px !important;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    table th, table td {
+      padding: 8px 10px !important;
+      font-size: 12px !important;
+    }
+    
+    .total-row td {
+      font-size: 14px !important;
+      padding: 12px 10px !important;
+    }
+    
+    .section-title {
+      font-size: 15px !important;
+    }
+  }
+
+
+
+
+        
+        /* Ensure all content fits within container */
+        .content-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Mobile-friendly Traveler Information Section Styles */
+        .traveler-info-section .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+        
+        .traveler-info-section .info-table td {
+            padding: 6px 0;
+            vertical-align: top;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .traveler-info-section .info-table td:first-child {
+            color: #6b7280;
+            font-weight: 600;
+            width: 35%;
+            padding-right: 10px;
+        }
+        
+        .traveler-info-section .info-table td:last-child {
+            color: #1f2937;
+            font-weight: 500;
+            font-size: 16px;
+            width: 65%;
+        }
+        
+        .traveler-info-section .passengers-list {
+            margin: 0;
+            padding-left: 20px;
+            color: #374151;
+        }
+        
+        /* Mobile responsive styles for traveler info only */
+        @media (max-width: 768px) {
+            .traveler-info-section .section-title {
+                font-size: 18px !important;
+                margin-bottom: 15px !important;
+                padding-bottom: 10px !important;
+            }
+            
+            .traveler-info-section .info-box {
+                padding: 15px !important;
+            }
+            
+            /* Stack table layout on mobile */
+            .traveler-info-section .info-table,
+            .traveler-info-section .info-table tbody,
+            .traveler-info-section .info-table tr,
+            .traveler-info-section .info-table td {
+                display: block;
+            }
+            
+            .traveler-info-section .info-table tr {
+                margin-bottom: 15px;
+                border-bottom: 1px solid #e5e7eb;
+                padding-bottom: 10px;
+            }
+            
+            .traveler-info-section .info-table tr:last-child {
+                margin-bottom: 0;
+                border-bottom: none;
+            }
+            
+            .traveler-info-section .info-table td {
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            
+            .traveler-info-section .info-table td:first-child {
+                font-size: 14px;
+                margin-bottom: 5px;
+                padding-right: 0 !important;
+                font-weight: 700;
+                color: #374151;
+            }
+            
+            .traveler-info-section .info-table td:last-child {
+                font-size: 15px;
+                padding-left: 10px;
+                border-left: 3px solid #3b82f6;
+            }
+            
+            .traveler-info-section .passengers-list {
+                padding-left: 15px;
+                margin-top: 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .traveler-info-section .section-title {
+                font-size: 16px !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .traveler-info-section .info-table td:first-child {
+                font-size: 13px !important;
+            }
+            
+            .traveler-info-section .info-table td:last-child {
+                font-size: 14px !important;
+            }
+            
+            .traveler-info-section .passengers-list {
+                font-size: 14px;
+                padding-left: 12px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .traveler-info-section .section-title {
+                font-size: 15px !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .traveler-info-section .info-table td:first-child {
+                font-size: 12px !important;
+            }
+            
+            .traveler-info-section .info-table td:last-child {
+                font-size: 13px !important;
+                padding-left: 8px !important;
+            }
+            
+            .traveler-info-section .passengers-list {
+                font-size: 13px;
+                padding-left: 10px;
+            }
+        }
+
+        
+
       </style>
     </head>
-    <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; line-height: 1.6; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; overflow-x: hidden; min-width: ${containerWidth};">
       
-      <!-- Full Width Container -->
-      <div style="width: 100%; max-width: none; background-color: #ffffff;">
+      <div class="container ${containerClass}" style="max-width: ${containerWidth}; font-size: ${containerFontSize === 'normal' ? '16px' : containerFontSize === 'medium' ? '14px' : '12px'};">
         
-        <!-- Hero Section -->
-        <div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 40px; text-align: center; position: relative; overflow: hidden;">
-          <!-- Animated background elements -->
-          <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px; animation: float 20s infinite linear; opacity: 0.3;"></div>
-          
-          <div style="position: relative; z-index: 2; max-width: 800px; margin: 0 auto;">
-            <div style="display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 20px; padding: 8px 24px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.3);">
-              <span style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">🔒 Secure Payment</span>
-            </div>
-            
-            <h1 class="hero-title" style="color: #ffffff; font-size: 42px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              Payment Authorization Required
+        <!-- Header -->
+        <div class="header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%); padding: 10px; text-align: center; position: relative;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 50%);"></div>
+          <div style="position: relative; z-index: 1;">
+            <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;">
+              Payment Authorization
             </h1>
-            
-            <p style="color: rgba(255,255,255,0.9); font-size: 18px; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-              Please review your booking details and authorize the payment to complete your travel reservation
+            <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 10px; font-weight: 400; line-height: 1.4;">
+              Please review and authorize your payment details below
             </p>
-            
-            <!-- Status indicator -->
-            <div style="display: inline-flex; align-items: center; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 50px; padding: 12px 24px;">
-              <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 12px; animation: pulse 2s infinite;"></div>
-              <span style="color: #ffffff; font-weight: 600; font-size: 14px;">Awaiting Authorization</span>
-            </div>
           </div>
         </div>
 
-        <!-- Main Content Section -->
-        <div class="content-section" style="padding: 50px 40px; background: #ffffff;">
-          <div style="max-width: 1200px; margin: 0 auto;">
-            
-            <!-- Welcome Message -->
-            <div style="text-align: center; margin-bottom: 50px;">
-              <div style="display: inline-block; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 16px; padding: 24px 32px; border-left: 4px solid #0ea5e9;">
-                <h2 style="color: #0c4a6e; font-size: 24px; font-weight: 700; margin-bottom: 8px;">
-                  Hello ${data.cardholderName || 'Valued Customer'}! 👋
-                </h2>
-                <p style="color: #475569; font-size: 16px; margin: 0; line-height: 1.6;">
-                  We're ready to process your booking. Please review the details below and click authorize to proceed.
-                </p>
-              </div>
-            </div>
+        <!-- Main Content --> 
+        <div class="content content-wrapper" style="padding: 10px; width: 100%; max-width: 100%; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word;">
+          
+          <!-- Welcome Message -->
+          <div class="welcome-box" style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin-bottom: 30px; border-radius: 0 8px 8px 0;">
+            <p style="margin: 0; color: #1e40af; font-size: 16px; font-weight: 500; word-break: break-word;">
+              Dear ${data.cardholderName || "Valued Customer"},
+            </p>
+            <p style="margin: 10px 0 0 0; color: #374151; font-size: 12px; line-height: 1.5;">
+              We need your authorization to process the payment for your booking. Please review the details below and click the authorization button to proceed.
+            </p>
+          </div>
 
-            <!-- Information Grid -->
-            <div class="info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 50px;">
-              
-              <!-- Booking Information -->
-              <div style="background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); border-radius: 20px; padding: 32px; border: 1px solid #f59e0b; position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(245, 158, 11, 0.1); border-radius: 50%;"></div>
-                <div style="position: relative; z-index: 1;">
-                  <div style="display: flex; align-items: center; margin-bottom: 24px;">
-                    <div style="background: #f59e0b; border-radius: 12px; padding: 12px; margin-right: 16px;">
-                      <span style="color: #ffffff; font-size: 20px;">📋</span>
-                    </div>
-                    <h3 style="color: #92400e; font-size: 22px; font-weight: 700; margin: 0;">Booking Details</h3>
-                  </div>
-                  
-                  <div style="space-y: 16px;">
-                    <div style="margin-bottom: 16px;">
-                      <p style="color: #b45309; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Reference</p>
-                      <p style="color: #451a03; font-size: 18px; font-weight: 700; margin: 0; font-family: monospace;">${data.bookingReference}</p>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                      <p style="color: #b45309; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Email</p>
-                      <p style="color: #451a03; font-size: 16px; font-weight: 500; margin: 0; word-break: break-word;">${data.customerEmail}</p>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                      <p style="color: #b45309; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Passengers</p>
-                      <ul style="list-style: none; padding: 0; margin: 0;">
-                        ${passengersList}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <p style="color: #b45309; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Contact</p>
-                      <p style="color: #451a03; font-size: 16px; font-weight: 500; margin: 0;">${data.contactNo || 'Not provided'}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              <!-- Payment Information -->
-              <div class="payment-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 20px; padding: 32px; border: 1px solid #22c55e; position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(34, 197, 94, 0.1); border-radius: 50%;"></div>
-                <div style="position: relative; z-index: 1;">
-                  <div style="display: flex; align-items: center; margin-bottom: 24px;">
-                    <div style="background: #22c55e; border-radius: 12px; padding: 12px; margin-right: 16px;">
-                      <span style="color: #ffffff; font-size: 20px;">💳</span>
-                    </div>
-                    <h3 style="color: #166534; font-size: 22px; font-weight: 700; margin: 0;">Payment Method</h3>
-                  </div>
-                  
-                  <div style="background: #ffffff; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                      <span style="color: #374151; font-weight: 600;">${data.cardType}</span>
-                      <span style="color: #6b7280; font-size: 14px;">•••• ${data.cardNumber.slice(-4)}</span>
-                    </div>
-                    <p style="color: #1f2937; font-size: 18px; font-weight: 700; margin-bottom: 8px;">${data.cardholderName}</p>
-                    <p style="color: #6b7280; font-size: 14px; margin: 0;">Expires: ${data.expiryDate}</p>
-                  </div>
-                  
-                  <div style="text-align: center;">
-                    <p style="color: #166534; font-weight: 600; font-size: 14px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Total Amount</p>
-                    <p class="amount-display" style="color: #15803d; font-size: 42px; font-weight: 900; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">$${data.amount}</p>
-                    <p style="color: #166534; font-size: 16px; margin: 4px 0 0 0;">USD</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <!-- Traveler Information Section -->
 
-            <!-- Flight Details Section (Unchanged) -->
-            <div class="flight-section" style="margin-bottom: 50px;">
-              <div style="text-align: center; margin-bottom: 32px;">
-                <h2 style="color: #1f2937; font-size: 28px; font-weight: 800; margin-bottom: 8px;">✈️ Flight Information</h2>
-                <p style="color: #6b7280; font-size: 16px; margin: 0;">Review your complete flight itinerary below</p>
-              </div>
-              
-              <div style="max-width: 900px; margin: 0 auto;">
-                ${createFlightSummaryEditor(data.flightSummary)}
-              </div>
+          <div class="traveler-info-section">
+            <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+                Traveler Information
+            </h2>
+            <div class="info-box" style="background-color: #f9fafb; padding: 10px; border-radius: 10px; border: 1px solid #e5e7eb;">
+                <table class="info-table">
+                    <tr>
+                        <td>Booking Reference:</td>
+                        <td>${data.bookingReference}</td>
+                    </tr>
+                    <tr>
+                        <td>Customer Email:</td>
+                        <td>${data.customerEmail}</td>
+                    </tr>
+                    <tr>
+                        <td>Passenger(s):</td>
+                        <td>
+                             <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                            ${passengersList}
+                             </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Contact Number:</td>
+                        <td> ${data.contactNo} </td>
+                    </tr>
+                </table>
             </div>
+        </div>
 
-            <!-- Authorization Agreement -->
-            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 20px; padding: 40px; margin-bottom: 50px; border: 1px solid #f87171; text-align: center;">
-              <div style="max-width: 700px; margin: 0 auto;">
-                <h3 style="color: #dc2626; font-size: 24px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; justify-content: center;">
-                  <span style="margin-right: 12px;">📝</span> Authorization Agreement
-                </h3>
-                
-                <div style="background: #ffffff; border-radius: 16px; padding: 32px; margin-bottom: 24px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                  <p style="color: #374151; font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
-                    I, <strong style="color: #dc2626;">${data.cardholderName}</strong>, hereby authorize 
-                    <strong style="color: #dc2626;">${data.companyName || 'the merchant'}</strong> to charge 
-                    <strong style="color: #dc2626;">USD $${data.amount}</strong> to my credit card ending in 
-                    <strong style="color: #dc2626;">${data.cardNumber.slice(-4)}</strong> for 
-                    <strong style="color: #dc2626;">${data.serviceDetails}</strong>.
-                  </p>
-                  
-                  <div style="background: #f9fafb; border-left: 4px solid #dc2626; padding: 20px; border-radius: 0 8px 8px 0;">
-                    <p style="color: #dc2626; font-weight: 700; margin-bottom: 12px; font-size: 14px;">Important Terms:</p>
-                    <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 14px; line-height: 1.6;">
-                      <li style="margin-bottom: 8px;"><strong>Non-Refundable/Non-Transferable</strong> tickets</li>
-                      <li style="margin-bottom: 8px;">Name changes <strong>not permitted</strong></li>
-                      <li style="margin-bottom: 8px;">Changes subject to <strong>penalties + fare differences</strong></li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <!-- Digital Signature -->
-                <div style="background: #ffffff; border: 2px dashed #d1d5db; border-radius: 12px; padding: 24px; text-align: center;">
-                  <p style="color: #6b7280; font-weight: 600; margin-bottom: 12px;">Digital Signature:</p>
-                  <p style="color: #1f2937; font-size: 24px; font-weight: 700; font-family: cursive; margin: 0;">${data.cardholderName}</p>
-                </div>
-              </div>
-            </div>
 
-            <!-- Call to Action -->
-            <div style="text-align: center; margin-bottom: 50px;">
-              <div style="max-width: 600px; margin: 0 auto 32px auto;">
-                <p style="color: #475569; font-size: 18px; line-height: 1.6; margin-bottom: 24px;">
-                  Ready to proceed? Click the button below to securely authorize your payment and complete your booking.
-                </p>
-              </div>
-              
-              <a href="https://myfaredeal.us/authorize-payment?token=YOUR_UNIQUE_TOKEN" 
-                 class="cta-button"
-                 style="display: inline-block; 
-                        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); 
-                        color: #ffffff; 
-                        padding: 20px 48px; 
-                        text-decoration: none; 
-                        border-radius: 50px; 
-                        font-weight: 700; 
-                        font-size: 18px;
-                        text-transform: uppercase; 
-                        letter-spacing: 1px;
-                        box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);
-                        transition: all 0.3s ease;
-                        border: none;
-                        cursor: pointer;">
-                🔒 AUTHORIZE PAYMENT NOW
-              </a>
-              
-              <div style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; color: #22c55e; font-size: 14px; font-weight: 600;">
-                  <span style="margin-right: 8px;">🔒</span> SSL Secured
-                </div>
-                <div style="display: flex; align-items: center; color: #22c55e; font-size: 14px; font-weight: 600;">
-                  <span style="margin-right: 8px;">⚡</span> Instant Processing
-                </div>
-                <div style="display: flex; align-items: center; color: #22c55e; font-size: 14px; font-weight: 600;">
-                  <span style="margin-right: 8px;">🛡️</span> Bank Grade Security
-                </div>
-              </div>
-              
-              <p style="color: #94a3b8; margin-top: 20px; font-size: 14px;">
-                This secure authorization link expires in <strong>60 minutes</strong>
-              </p>
-            </div>
+
+         <!-- Booking Details Section -->
+          <div style="margin-bottom: 35px; margin-top: 10px;">
+            <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+               Flight Summary
+            </h2>
+            <div class="flight-summary-container" style="padding: ${containerFontSize === 'small' ? '0px' : containerFontSize === 'medium' ? '15px' : '18px'}; border-radius: 10px; border-left: 4px solid #f5e4b1ff; max-width: 100%; overflow-x: auto; word-wrap: break-word; overflow-wrap: break-word;">
+  <div class="flight-summary-content" style="color: #374151; font-size: ${containerFontSize === 'small' ? '10px' : containerFontSize === 'medium' ? '12px' : '14px'}; line-height: 1.6; word-break: break-word;">
+    ${cleanFlightSummary(data.flightSummary)}
+  </div>
+</div>
+
 
           </div>
+         
+
+          
+  
+  <!-- Charge breackdown -->
+  ${
+    Array.isArray(data.chargeBreakdown) &&
+    data.chargeBreakdown.some((item) => item.merchant || item.amount)
+      ? `
+  <div style="margin: 0 auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <h2 class="section-title" style="margin-top: 10px; color: #1f2937; font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+      Charge breakdown
+    </h2>
+
+    <table style="width: 100%; min-width: 320px; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <thead>
+        <tr style="background: #1e40af;">
+          <th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 120px;">Merchant Name</th>
+          <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.chargeBreakdown
+          .map(
+            (charge, index) => `
+          <tr style="background: ${index % 2 === 0 ? "#f8fafc" : "#ffffff"};">
+            <td style="padding: 12px 16px; color: #374151; font-weight: 600; font-size: 14px; border: none; text-transform: capitalize; word-wrap: break-word;">
+              ${charge.merchant || "Service Provider"}
+            </td>
+            <td style="padding: 12px 16px; color: #374151; font-weight: 500; font-size: 14px; text-align: right; border: none; white-space: nowrap;">
+              $${parseFloat(charge.amount || 0).toFixed(2)}
+            </td>
+          </tr>
+        `
+          )
+          .join("")}
+       
+      </tbody>
+    </table>
+  </div>
+`
+      : ""
+  }
+
+
+
+<!-- Charge Description -->
+${
+Array.isArray(data.chargeDescription) &&
+data.chargeDescription.some((item) => {
+  // Check for any description field or amount
+  const hasDescription = Object.keys(item).some(key => 
+    key.startsWith('description_') && item[key]
+  );
+  return hasDescription || item.amount;
+})
+? `
+<div style="margin: 0 auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+<table style="width: 100%; min-width: 320px; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+<thead>
+<tr style="background: #1e40af;">
+<th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 12px; border: none; min-width: 200px;">Description</th>
+<th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 12px; border: none; min-width: 120px;">Amount</th>
+</tr>
+</thead>
+<tbody>
+${data.chargeDescription
+.map((item, index) => {
+  // Find the first available description field dynamically
+  let description = "Service Charge";
+  
+  // Look for description fields in order (description_1, description_2, etc.)
+  const descriptionKeys = Object.keys(item)
+    .filter(key => key.startsWith('description_'))
+    .sort((a, b) => {
+      const numA = parseInt(a.split('_')[1]) || 0;
+      const numB = parseInt(b.split('_')[1]) || 0;
+      return numA - numB;
+    });
+  
+  // Use the first non-empty description found
+  for (const key of descriptionKeys) {
+    if (item[key] && item[key].trim()) {
+      description = item[key];
+      break;
+    }
+  }
+  
+  let amount = item.amount || "$0.00";
+  description = description.replace(/\t+/g, " ").trim();
+  
+  const isLastItem = index === data.chargeDescription.length - 1;
+  
+  if (isLastItem) {
+    return `
+<tr style="background: #fef3c7; border-top: 2px solid #f59e0b;">
+<td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 10px; border: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${description}</td>
+<td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 10px; text-align: right; border: none; word-break: break-word;">${amount}</td>
+</tr>
+`;
+  } else {
+    return `
+<tr style="background: ${index % 2 === 0 ? "#f8fafc" : "#ffffff"};">
+<td style="padding: 12px 16px; color: #374151; font-weight: 600; font-size: 15px; border: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+${description}
+</td>
+<td style="padding: 12px 16px; color: #374151; font-weight: 500; font-size: 15px; text-align: right; border: none; word-break: break-word;">
+${amount}
+</td>
+</tr>
+`;
+  }
+})
+.join("")}
+</tbody>
+</table>
+</div>
+`
+: ""
+}
+
+          <!-- Payment Information Section -->
+          <div style="margin-bottom: 35px;">
+            <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-top: 14px;">
+               Payment Details
+            </h2>
+            <div class="info-box" style="background-color: #f0fdf4; padding: 10px; border-radius: 10px; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e;">
+              <table class="info-table" style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 10px 0; color: #166534; font-weight: 600; width: 35%; vertical-align: top;">Cardholder Name:</td>
+                  <td style="padding: 10px 0; color: #1f2937; font-weight: 500; font-size: 16px; word-break: break-word; width: 65%;">${
+                    data.cardholderName
+                  }</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; color: #166534; font-weight: 600; vertical-align: top;">Card Type:</td>
+                  <td style="padding: 10px 0; color: #1f2937; font-weight: 500;">${
+                    data.cardType
+                  }</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; color: #166534; font-weight: 600; vertical-align: top;">Card Number:</td>
+                  <td style="padding: 10px 0; color: #1f2937; font-weight: 500; font-family: monospace;">**** **** **** ${data.cardNumber.slice(
+                    -4
+                  )}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; color: #166534; font-weight: 600; vertical-align: top;">Expiration Date:</td>
+                  <td style="padding: 10px 0; color: #1f2937; font-weight: 500;">${
+                    data.expiryDate
+                  }</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; color: #166534; font-weight: 600; vertical-align: top;">Billing Email:</td>
+                  <td style="padding: 10px 0; color: #1f2937; font-weight: 500; word-break: break-word;">${
+                    data.billingEmail
+                  }</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Authorization Agreement Section -->
+          <div style="margin-bottom: 35px;">
+            <div class="info-box" style="background-color: #fef2f2; padding: 12px; border-radius: 10px; border: 1px solid #fecaca; border-left: 4px solid #ef4444;">
+              <p class="auth-text" style="margin: 0 0 15px 0; color: #374151; font-size: 12px; line-height: 1.8; text-align: justify; word-break: break-word;">
+                As per our telephonic conversation and as agreed, I, <strong>${
+                  data.cardholderName
+                }</strong>, 
+                authorize <strong>${
+                  data.companyName || "the merchant"
+                }</strong> to charge <strong>USD $${data.amount}</strong> 
+                to the above credit card for <strong>${
+                  data.serviceDetails
+                }</strong>.
+              </p>
+              <div class="terms-inner" style="background-color: #ffffff; padding: 15px; border-radius: 6px; border-left: 3px solid #ef4444; margin-top: 15px;">
+                <p style="margin: 0; color: #313131ff; font-size: 12px; font-weight: 600;">
+                   Important Terms & Conditions:
+                </p>
+                <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #374151; font-size: 12px;">
+                  <li style="margin: 5px 0;">Tickets are <strong>Non-Refundable/Non-Transferable</strong></li>
+                  <li style="margin: 5px 0;">Name changes are <strong>not permitted</strong></li>
+                  <li style="margin: 5px 0;">Date/Route/Time changes may incur <strong>penalties plus fare differences</strong></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signature Section -->
+<div class="signature-box" style="background-color: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; border: 2px dashed #cbd5e1;">
+  <p style="margin: 0 0 10px 0; color: #475569; font-weight: 600; font-size: 16px;">
+    📝 Customer Signature
+  </p>
+ <p class="signature-text" style="margin: 0; color: #1f2937; font-size: 22px; font-weight: 500; background-color: #ffffff; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; word-break: break-word; font-family: 'Dancing Script', cursive; text-transform: lowercase;">
+  ${data.cardholderName}
+</p>
+
+
+</div>
+
+
+
+         <!-- Scrollable Terms & Conditions -->
+        <div class="terms-box" style="max-height: 550px; overflow-y: auto; background-color: #fff7ed; border: 1px solid #fde68a; padding: 20px; border-radius: 10px; font-size: 13px; color: #374151; line-height: 1.7; margin-bottom: 30px; word-wrap: break-word; overflow-wrap: break-word;">
+          <strong>Terms & Conditions</strong><br /><br />
+          Tickets are <strong>Non-Refundable/Non-Transferable</strong> and name changes are not permitted.<br />
+          Date and routing changes will be subject to Airline Penalty and Fare Difference if any.<br />
+          Fares are not guaranteed until ticketed.<br />
+          For any modification or changes please contact our Travel Consultant on <strong>+1-844-480-0252</strong>.<br />
+          All customers are advised to verify travel documents (transit visa/entry visa) for the country through which they are transiting and/or entering. We will not be responsible if proper travel documents are not available and you are denied entry or transit into a Country.<br />
+          We request you to consult the embassy of the country(s) you are visiting or transiting through.<br />
+          These terms and conditions ("terms of use") apply to you right the moment you access and use ${
+            data.companyName
+          }: its services, products, and contents. This is a legal agreement between you and ${
+    data.companyName
+  }.<br />
+          Travelers First name and Last name must match government-issued ID.<br />
+          <strong>Fare Policy</strong><br />
+          • ${data.companyName} accepts Debit Cards and Credit Cards<br />
+          • All prices are in USD<br />
+          • Ticket fares do not include baggage fees<br />
+          <strong>Payment Policy</strong><br />
+          • Ticket is not guaranteed until issued<br />
+          • In case of card issues, we notify within 24 hrs<br />
+          <strong>Credit Card Declines</strong><br />
+          • You will be notified within 24-48 hours<br />
+          • Booking is not guaranteed until payment success<br />
+          <strong>Cancellation/Exchanges</strong><br />
+          • Must be requested at least 24 hrs prior to departure<br />
+          • Non-refundable tickets unless airline allows<br />
+          • Subject to airline penalties and fare difference<br />
+          • ${data.companyName} may charge refund/change fees<br />
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+     <!-- Regards Section -->.  
+<div style="margin-top: 50px;">
+  <div style=" margin: 0 auto;">
+    <div style="margin-bottom: 32px;">
+      <p style="color: #374151; font-size: 18px; font-weight: 600; margin-bottom: 24px;">Regards,</p>
+      
+      <div style="background: #ffffff; border-radius: 16px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 3px solid #3b82f6;">
+       
+        
+        <div style="space-y: 12px;">
+
+
+        <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div style=" padding: 8px;  min-width: 30px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 16px;">👤</span>
+            </div>
+            <div>
+              <p style="color: #425067ff; font-weight: 600; margin: 0; font-size: 15px; padding-top: 10px;"> ${data.name} </p>
+            </div>
+          </div>
+
+
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div style=" padding: 8px;  min-width: 30px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 16px;">📞</span>
+            </div>
+            <div>
+              <p style="color: #374151; font-weight: 600; margin: 0; font-size: 12px;">+1-844-480-0252</p>
+              <p style="color: #6b7280; font-size: 9px; margin: 0;">Toll Free Number</p>
+            </div>
+          </div>
+          
+          <div style="display: flex; align-items: center;">
+            <div style="padding: 8px;  min-width: 30px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 16px;">📧</span>
+            </div>
+            <div>
+              <p style="color: #374151; font-weight: 600; margin: 0; font-size: 12px;">${data.email}</p>
+              <p style="color: #6b7280; font-size: 9px; margin: 0;">Email Address</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+      <p style="color: #6b7280; font-size: 10px; margin: 0; line-height: 1.5;">
+        Thank you for choosing our service. If you have any questions or need assistance, please don't hesitate to contact us.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+          <!-- Call to Action -->
+          <div style="text-align: center; margin: 40px 0;">
+            <p style="color: #6b7280; margin-bottom: 25px; font-size: 14px; line-height: 1.5;">
+              By clicking the button below, you confirm that you agree to the terms and authorize the payment.
+            </p>
+            <a href="https://myfaredeal.us/authorize-payment?token=YOUR_UNIQUE_TOKEN" 
+               class="cta-button"
+               style="background: linear-gradient(135deg, #397f34ff 0%, #4CA746 100%); 
+                      color: #ffffff; 
+                      padding: 18px 40px; 
+                      text-decoration: none;  
+                      border-radius: 50px; 
+                      font-weight: 700; 
+                      font-size: 16px; 
+                      display: inline-block; 
+                      text-transform: uppercase; 
+                      letter-spacing: 1px; 
+                      box-shadow: 0 8px 20px #4ca746; 
+                      transition: all 0.3s ease;"> 
+              🔒 AUTHORIZE PAYMENT
+            </a>
+            <p style="color: #9ca3af; margin-top: 15px; font-size: 12px; line-height: 1.4;">
+              This authorization link is secure and will expire in 1 hour
+            </p>
+          </div>
+
         </div>
 
         <!-- Footer -->
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 40px 40px 30px 40px; color: #ffffff;">
-          <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
-            
-            <!-- Company Info -->
-            <div style="margin-bottom: 32px;">
-              <h4 style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 8px;">
-                ${data.companyName || 'Your Travel Partner'}
-              </h4>
-              <p style="color: #cbd5e1; font-size: 16px; margin: 0; line-height: 1.6;">
-                Your trusted partner for seamless travel experiences worldwide
-              </p>
-            </div>
-            
-            <!-- Support Info -->
-            <div style="background: rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 32px; backdrop-filter: blur(10px);">
-              <p style="color: #f1f5f9; font-size: 16px; font-weight: 600; margin-bottom: 12px;">
-                📞 Need Help? Contact Our 24/7 Support Team
-              </p>
-              <p style="color: #cbd5e1; font-size: 14px; margin: 0;">
-                Call us at <strong>+1-844-480-0252</strong> or email support@${data.companyName ? data.companyName.toLowerCase().replace(/\s+/g, '') : 'company'}.com
-              </p>
-            </div>
-            
-            <!-- Legal -->
-            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
-              <p style="color: #94a3b8; font-size: 14px; margin-bottom: 8px;">
-                This is an automated message. Please do not reply to this email.
-              </p>
-              <p style="color: #64748b; font-size: 12px; margin: 0;">
-                © ${new Date().getFullYear()} ${data.companyName || 'Your Company'}. All rights reserved. | 
-                <a href="#" style="color: #cbd5e1; text-decoration: none;">Privacy Policy</a> | 
-                <a href="#" style="color: #cbd5e1; text-decoration: none;">Terms of Service</a>
-              </p>
-            </div>
-            
-          </div>
+        <div class="footer" style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="color: #6b7280; margin: 0 0 10px 0; font-size: 14px; line-height: 1.4;">
+            Need help? Contact our support team
+          </p>
+          <p style="color: #9ca3af; margin: 0; font-size: 12px; line-height: 1.4;">
+            This is an automated email. Please do not reply to this message.
+          </p>
+          <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px; line-height: 1.4;">
+            © ${new Date().getFullYear()} ${
+    data.companyName || "Your Merchant"
+  }. All rights reserved.
+          </p>
         </div>
 
       </div>

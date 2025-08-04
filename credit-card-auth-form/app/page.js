@@ -1,8 +1,20 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 export default function Home() {
+
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setEmail(params.get('email') || '');
+    setName(params.get('name') || '');
+  }, []);
+
+
   const [formData, setFormData] = useState({
     bookingReference: "",
     customerEmail: "",
@@ -25,8 +37,51 @@ export default function Home() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const editorRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
+  const [chargeBreakdown, setChargeBreakdown] = useState([
+    { merchant: "", amount: "" },
+    { merchant: "", amount: "" },
+  ]);
+
+  const [chargeDesc, setChargeDesc] = useState([
+    { description_1: "", amount: "" },
+  ]);
+
+  // Handler for charge breakdown changes:
+  const handleChargeBreakdownChange = (index, field, value) => {
+    const updated = [...chargeBreakdown];
+    updated[index][field] = value; // Don't restrict input for any field
+    setChargeBreakdown(updated);
+  };
+
+  // Handle changes to charge description fields
+  const handleChargeDescChange = (idx, field, value) => {
+    const updatedChargeDesc = chargeDesc.map((item, index) => {
+      if (index === idx) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
+    setChargeDesc(updatedChargeDesc);
+  };
+
+  // Add a new charge description row
+  const addChargeDescRow = () => {
+    const newRowNumber = chargeDesc.length + 1;
+    setChargeDesc([
+      ...chargeDesc,
+      { [`description_${newRowNumber}`]: "", amount: "" },
+    ]);
+  };
+
+  const removeChargeDescRow = (idx) => {
+    if (chargeDesc.length > 1) {
+      setChargeDesc(chargeDesc.filter((_, index) => index !== idx));
+    }
+  };
+
+  const editorRef = useRef(null);
 
   // Format card number with spaces every 4 digits
   const formatCardNumber = (value) => {
@@ -178,7 +233,7 @@ export default function Home() {
     }
   };
 
- // Rich text editor functions
+  // Rich text editor functions
   const execCommand = (command, value = null) => {
     document.execCommand(command, false, value);
     editorRef.current.focus();
@@ -186,13 +241,11 @@ export default function Home() {
   };
 
   const insertImage = () => {
-    const url = prompt('Enter image URL:');
+    const url = prompt("Enter image URL:");
     if (url) {
-      execCommand('insertImage', url);
+      execCommand("insertImage", url);
     }
   };
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -210,16 +263,25 @@ export default function Home() {
       return;
     }
 
-    setIsSubmitting(true); // Start loader
+    setIsSubmitting(true);
 
-    console.log("Submitting form data:", formData);
+    const fullData = {
+      ...formData,
+      chargeBreakdown: chargeBreakdown,
+      chargeDescription: chargeDesc,
+      email: email,
+      name: name,
+    };
+
+    console.log("Submitting form data:", fullData);
+
     try {
       const response = await fetch("https://api.myfaredeal.us/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(fullData),
       });
 
       if (response.ok) {
@@ -411,30 +473,17 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Flight Summary with Rich Text Editor */}
+            {/* Flight Summary  Text Editor */}
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                <svg
-                  className="w-6 h-6 mr-3 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
                 Flight Summary
               </h3>
-              
+
               {/* Rich Text Editor Toolbar */}
               <div className="bg-white border-2 border-gray-300 rounded-t-lg p-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => execCommand('bold')}
+                  onClick={() => execCommand("bold")}
                   className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100 font-bold"
                   title="Bold"
                 >
@@ -442,7 +491,7 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => execCommand('italic')}
+                  onClick={() => execCommand("italic")}
                   className="px-3 text-black py-1 border border-gray-300 rounded hover:bg-gray-100 italic"
                   title="Italic"
                 >
@@ -450,58 +499,13 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => execCommand('underline')}
+                  onClick={() => execCommand("underline")}
                   className="px-3 text-black py-1 border border-gray-300 rounded hover:bg-gray-100 underline"
                   title="Underline"
                 >
                   U
                 </button>
                 <div className="w-px bg-gray-300 mx-1"></div>
-                <button
-                  type="button"
-                  onClick={() => execCommand('insertUnorderedList')}
-                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
-                  title="Bullet List"
-                >
-                  • List
-                </button>
-                <button
-                  type="button"
-                  onClick={() => execCommand('insertOrderedList')}
-                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
-                  title="Numbered List"
-                >
-                  1. List
-                </button>
-                <div className="w-px bg-gray-300 mx-1"></div>
-                <button
-                  type="button"
-                  onClick={insertImage}
-                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
-                  title="Insert Image"
-                >
-                  📷 Image
-                </button>
-                <button
-                  type="button"
-                  onClick={() => execCommand('createLink', prompt('Enter URL:'))}
-                  className="px-3 py-1 text-black border border-gray-300 rounded hover:bg-gray-100"
-                  title="Insert Link"
-                >
-                  🔗 Link
-                </button>
-                <div className="w-px bg-gray-300 mx-1"></div>
-                <select
-                  onChange={(e) => execCommand('formatBlock', e.target.value)}
-                  className="px-2  text-black py-1 border border-gray-300 rounded"
-                  defaultValue=""
-                >
-                  <option value="">Format</option>
-                  <option value="h1">Heading 1</option>
-                  <option value="h2">Heading 2</option>
-                  <option value="h3">Heading 3</option>
-                  <option value="p">Paragraph</option>
-                </select>
               </div>
 
               {/* Rich Text Editor */}
@@ -512,14 +516,12 @@ export default function Home() {
                 onPaste={handleEditorChange}
                 className="text-black w-full min-h-32 max-h-64 overflow-y-auto px-4 py-3 bg-white border-2 border-t-0 border-gray-300 rounded-b-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 style={{
-                  minHeight: '128px',
-                  maxHeight: '400px'
+                  minHeight: "128px",
+                  maxHeight: "400px",
                 }}
                 suppressContentEditableWarning={true}
                 data-placeholder="Enter detailed booking information including flight dates, destinations, and any special requirements. You can paste images, format text, and add links..."
               />
-              
-              
             </div>
 
             {/* Credit Card Information */}
@@ -638,7 +640,7 @@ export default function Home() {
                     htmlFor="cvv"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    CVV/CVC *
+                    CVV *
                   </label>
                   <input
                     type="text"
@@ -741,24 +743,180 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200 mb-8">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                Charge Breakdown
+                <p className="text-red-500  ml-2 text-sm">{`Optional `}</p>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div className="font-semibold text-gray-700">
+                  Merchant Name(s)
+                </div>
+                <div className="font-semibold text-gray-700">Amount (USD)</div>
+                <div></div>
+
+                {chargeBreakdown.map((item, idx) => (
+                  <React.Fragment key={idx}>
+                    <div>
+                      {idx === 0 ? (
+                        <select
+                          value={item.merchant}
+                          onChange={(e) =>
+                            handleChargeBreakdownChange(
+                              idx,
+                              "merchant",
+                              e.target.value
+                            )
+                          }
+                          className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        >
+                          <option value="">Select Merchant</option>
+                          <option value="Myfaredeal">Myfaredeal</option>
+                          <option value="Farebulk">Farebulk</option>
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={item.merchant}
+                          onChange={(e) =>
+                            handleChargeBreakdownChange(
+                              idx,
+                              "merchant",
+                              e.target.value
+                            )
+                          }
+                          className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          placeholder={`Merchant ${idx + 1}`}
+                        />
+                      )}
+                    </div>
+
+                    <div>
+                      <input
+                        type="text"
+                        value={item.amount}
+                        onChange={(e) =>
+                          handleChargeBreakdownChange(
+                            idx,
+                            "amount",
+                            e.target.value
+                          )
+                        }
+                        className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="a + = 2 "
+                      />
+                    </div>
+
+                    <div></div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-yellow-200 rounded-lg">
+              <div className="mb-4">
+                {/* Header with toggle */}
+                <div className="flex  items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Charge Descriptions
+                  </h3>
+                  <p className="text-red-500  ml-2 text-sm">{`Optional `}</p>
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="text-blue-600 ml-4 text-lg hover:underline"
+                  >
+                    {isOpen ? "Hide" : "Show"}
+                  </button>
+                </div>
+
+                {/* Collapsible content */}
+                {isOpen && (
+                  <div className="space-y-4 transition-all duration-300 ease-in-out">
+                    {chargeDesc.map((item, idx) => {
+                      const descriptionKey = Object.keys(item).find((key) =>
+                        key.startsWith("description_")
+                      );
+
+                      return (
+                        <div key={idx} className="mb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                            {idx === 0 && (
+                              <>
+                                <div className="font-semibold text-gray-700">
+                                  Description
+                                </div>
+                                <div className="font-semibold text-gray-700">
+                                  Amount (USD)
+                                </div>
+                                <div></div>
+                              </>
+                            )}
+
+                            <div>
+                              <input
+                                type="text"
+                                value={item[descriptionKey] || ""}
+                                onChange={(e) =>
+                                  handleChargeDescChange(
+                                    idx,
+                                    descriptionKey,
+                                    e.target.value
+                                  )
+                                }
+                                className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                placeholder={`${descriptionKey} ${idx + 1}`}
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                type="text"
+                                value={item.amount || ""}
+                                onChange={(e) =>
+                                  handleChargeDescChange(
+                                    idx,
+                                    "amount",
+                                    e.target.value
+                                  )
+                                }
+                                className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                placeholder="a + = 2"
+                              />
+                            </div>
+
+                            <div className="flex gap-2">
+                              {idx === chargeDesc.length - 1 && (
+                                <button
+                                  type="button"
+                                  onClick={addChargeDescRow}
+                                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-1"
+                                >
+                                  <span className="text-lg">+</span> Add
+                                </button>
+                              )}
+
+                              {chargeDesc.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeChargeDescRow(idx)}
+                                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-1"
+                                >
+                                  <span className="text-lg">−</span> Remove
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Charge Details */}
             <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                <svg
-                  className="w-6 h-6 mr-3 text-yellow-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                  />
-                </svg>
-                Charge Details
-              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label
@@ -812,40 +970,42 @@ export default function Home() {
                   <p className="text-red-500 mb-4">
                     {`Note: Before sending the "Authorization (I confirm)" email to the customer, 
     please double-check the merchant name and confirm it with your reporting manager.`}
-  </p>
+                  </p>
                   <label
                     htmlFor="companyName"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
                     Merchant Name *
                   </label>
-                <div className="relative w-full">
-  <select
-    id="companyName"
-    value={formData.companyName}
-    onChange={handleChange}
-    className="appearance-none text-black w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 pr-10"
-  >
-    <option value="">Select Merchant</option>
-    <option value="Myfaredeal">Myfaredeal</option>
-    <option value="Farebulk">Farebulk</option>
-  </select>
-  {/* Custom dropdown arrow */}
-  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-    <svg
-      className="w-4 h-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-</div>
-
-
-                </div> 
+                  <div className="relative w-full">
+                    <select
+                      id="companyName"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                      className="appearance-none text-black w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 pr-10"
+                    >
+                      <option value="">Select Merchant</option>
+                      <option value="Myfaredeal">Myfaredeal</option>
+                      <option value="Farebulk">Farebulk</option>
+                    </select>
+                    {/* Custom dropdown arrow */}
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
                   <p className="text-sm text-gray-700 leading-relaxed">
                     As per our telephonic conversation and as agreed, I,
@@ -863,10 +1023,9 @@ export default function Home() {
                       {" "}
                       ${formData.amount || " [AMOUNT]"}{" "}
                     </span>{" "}
-                    for 
-                    {" "}
+                    for{" "}
                     <span className="font-bold text-blue-600">
-                       {formData.serviceDetails || " [SERVICE]"}
+                      {formData.serviceDetails || " [SERVICE]"}
                     </span>
                     . I understand that this charge is non-refundable.You may
                     see above charges in split, however total remains same
@@ -874,12 +1033,11 @@ export default function Home() {
                     permitted.
                     <span className="font-bold text-blue-600">
                       {" "}
-                      {formData.serviceDetails || " [SERVICE]"}
-                      {" "}
+                      {formData.serviceDetails || " [SERVICE]"}{" "}
                     </span>
-                     I understand that this charge is non-refundable. You may
-                    see above charges in split, however total remains same.
-                    Booking purchased are non-transferable. Name changes are not
+                    I understand that this charge is non-refundable. You may see
+                    above charges in split, however total remains same. Booking
+                    purchased are non-transferable. Name changes are not
                     permitted. Date/Route/Time change may incur penalty plus
                     difference in fare.
                   </p>
@@ -916,7 +1074,6 @@ export default function Home() {
                         className="text-black w-full px-4 py-4 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 font-signature text-2xl"
                         placeholder="Type your full name as signature"
                         readOnly
-                        
                       />
                       <p className="text-xs text-gray-500 mt-2">
                         By typing your name above, you agree to the terms and
@@ -930,14 +1087,13 @@ export default function Home() {
                 <div className="text-center pt-6">
                   <button
                     type="submit"
-                     
                     className={`w-full md:w-auto bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-12 py-4 rounded-xl text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 mx-auto
       ${
         isSubmitting
           ? "bg-gray-400 cursor-not-allowed"
           : "bg-blue-600 hover:bg-blue-700"
       }`}
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <div className="flex items-center justify-center gap-2">
@@ -1147,8 +1303,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-           
           </div>
         </div>
       </div>
