@@ -1159,9 +1159,7 @@ ${
           <p style="color: #6b7280; margin: 0 0 10px 0; font-size: 14px; line-height: 1.4;">
             Need help? Contact our support team
           </p>
-          <p style="color: #9ca3af; margin: 0; font-size: 12px; line-height: 1.4;">
-            This is an automated email. Please do not reply to this message.
-          </p>
+         
           <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px; line-height: 1.4;">
             © ${new Date().getFullYear()} ${
     data.companyName || "Your Merchant"
