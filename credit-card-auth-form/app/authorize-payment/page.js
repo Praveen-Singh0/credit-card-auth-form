@@ -10,6 +10,8 @@ function AuthorizePaymentContent() {
   useEffect(() => {
     if (token) {
       window.location.href = `https://api.myfaredeal.us/authorize-payment?token=${token}`;
+      // window.location.href = `http://localhost:3081/authorize-payment?token=${token}`;
+
     }
   }, [token]);
 

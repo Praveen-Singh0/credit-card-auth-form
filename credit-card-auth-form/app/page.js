@@ -3,17 +3,14 @@
 import React, { useState, useRef, useEffect } from "react";
 
 export default function Home() {
-
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setEmail(params.get('email') || '');
-    setName(params.get('name') || '');
+    setEmail(params.get("email") || "");
+    setName(params.get("name") || "");
   }, []);
-
 
   const [formData, setFormData] = useState({
     bookingReference: "",
@@ -42,6 +39,7 @@ export default function Home() {
   const [chargeBreakdown, setChargeBreakdown] = useState([
     { merchant: "", amount: "" },
     { merchant: "", amount: "" },
+    { merchant: "Total", amount: "" },
   ]);
 
   const [chargeDesc, setChargeDesc] = useState([
@@ -277,6 +275,7 @@ export default function Home() {
 
     try {
       const response = await fetch("https://api.myfaredeal.us/send-email", {
+      // const response = await fetch("http://localhost:3081/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -923,7 +922,7 @@ export default function Home() {
                     htmlFor="amount"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Amount (USD) *
+                    Amount (MCO) *
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg font-semibold">

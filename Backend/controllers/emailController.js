@@ -9,20 +9,26 @@ const tokenStore = {};
 const emailAccounts = {
   "cyrus@myfaredeal.com": {
     user: "cyrus@myfaredeal.com",
-    pass: "///////////",
+    pass: "ocsr ugvi qvfh gfql",
   },
   "kriss@myfaredeal.com": {
     user: "kriss@myfaredeal.com",
-    pass: "///////////",
+    pass: "///////////", // Replace with actual password
   },
   "debra@myfaredeal.com": {
     user: "debra@myfaredeal.com",
-    pass: "///////////",
+    pass: "afgh zpye trlf ydcz",
   },
   "ruben@myfaredeal.com": {
     user: "ruben@myfaredeal.com",
-    pass: "///////////",
+    pass: "gruq klrs qoca ogtl",
   },
+   "sandeepnegi2016@gmail.com": {
+    user: "sandeepnegi2016@gmail.com",
+    pass: "oadv fzvd xuif ytef",
+  },
+
+  
 };
 
 const sendEmail = async (req, res) => {
@@ -945,52 +951,8 @@ const authorizePayment = async (req, res) => {
     ${cleanFlightSummary(data.flightSummary)}
   </div>
 </div>
-
-
-          </div>
-         
-
-          
-  
-  <!-- Charge breackdown -->
-  ${
-    Array.isArray(data.chargeBreakdown) &&
-    data.chargeBreakdown.some((item) => item.merchant || item.amount)
-      ? `
-  <div style="margin: 0 auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-    <h2 class="section-title" style="margin-top: 10px; color: #1f2937; font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
-      Charge breakdown
-    </h2>
-
-    <table style="width: 100%; min-width: 320px; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-      <thead>
-        <tr style="background: #1e40af;">
-          <th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 120px;">Merchant Name</th>
-          <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount (USD)</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.chargeBreakdown
-          .map(
-            (charge, index) => `
-          <tr style="background: ${index % 2 === 0 ? "#f8fafc" : "#ffffff"};">
-            <td style="padding: 12px 16px; color: #374151; font-weight: 600; font-size: 14px; border: none; text-transform: capitalize; word-wrap: break-word;">
-              ${charge.merchant || "Service Provider"}
-            </td>
-            <td style="padding: 12px 16px; color: #374151; font-weight: 500; font-size: 14px; text-align: right; border: none; white-space: nowrap;">
-              $${parseFloat(charge.amount || 0).toFixed(2)}
-            </td>
-          </tr>
-        `
-          )
-          .join("")}
-       
-      </tbody>
-    </table>
   </div>
-`
-      : ""
-  }
+
 
 
 
@@ -1068,6 +1030,66 @@ ${amount}
 `
     : ""
 }
+
+
+
+<!-- Charge breakdown -->
+${
+  Array.isArray(data.chargeBreakdown) &&
+  data.chargeBreakdown.some((item) => item.merchant || item.amount)
+    ? `
+<div style="margin: 0 auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+  <h2 class="section-title" style="margin-top: 10px; color: #1f2937; font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+    Charge breakdown
+  </h2>
+
+  <table style="width: 100%; min-width: 320px; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <thead>
+      <tr style="background: #1e40af;">
+        <th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 120px;">Merchant Name</th>
+        <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount (USD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${data.chargeBreakdown
+        .map((charge, index, arr) => {
+          const isLast = index === arr.length - 1;
+          const isTotal = charge.merchant?.toLowerCase() === "total";
+
+          if (isLast && isTotal) {
+            return `
+            <tr style="background: #fef3c7; border-top: 2px solid #f59e0b;">
+              <td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 14px; border: none; text-transform: capitalize;">
+                ${charge.merchant}
+              </td>
+              <td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 14px; text-align: right; border: none;">
+                $${parseFloat(charge.amount || 0).toFixed(2)}
+              </td>
+            </tr>
+            `;
+          } else {
+            return `
+            <tr style="background: ${index % 2 === 0 ? "#f8fafc" : "#ffffff"};">
+              <td style="padding: 12px 16px; color: #374151; font-weight: 600; font-size: 14px; border: none; text-transform: capitalize; word-wrap: break-word;">
+                ${charge.merchant || "Service Provider"}
+              </td>
+              <td style="padding: 12px 16px; color: #374151; font-weight: 500; font-size: 14px; text-align: right; border: none; white-space: nowrap;">
+                $${parseFloat(charge.amount || 0).toFixed(2)}
+              </td>
+            </tr>
+            `;
+          }
+        })
+        .join("")}
+    </tbody>
+  </table>
+</div>
+`
+    : ""
+}
+
+
+
 
           <!-- Payment Information Section -->
           <div style="margin-bottom: 35px;">
@@ -1295,6 +1317,10 @@ ${amount}
     res.redirect(
       `https://myfaredeal.us/thank-you?name=${data.cardholderName}&merchant=${data.companyName}`
     );
+
+    // res.redirect(
+    //   `http://localhost:3080/thank-you?name=${data.cardholderName}&merchant=${data.companyName}`
+    // );
   } else {
     res.status(400).send("Invalid or expired authorization link.");
   }
