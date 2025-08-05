@@ -1131,7 +1131,6 @@ ${
             <p style="color: #6b7280; margin-bottom: 25px; font-size: 14px; line-height: 1.5;">
               By clicking the button below, you confirm that you agree to the terms and authorize the payment.
             </p>
-            <!-- <a href="http://localhost:3080/authorize-payment?token=YOUR_UNIQUE_TOKEN" -->
              <a href="https://myfaredeal.us/authorize-payment?token=YOUR_UNIQUE_TOKEN" 
                class="cta-button"
                style="background: linear-gradient(135deg, #397f34ff 0%, #4CA746 100%); 

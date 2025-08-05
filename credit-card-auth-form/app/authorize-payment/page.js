@@ -7,6 +7,8 @@ function AuthorizePaymentContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
+  console.log('Token:', token);
+
   useEffect(() => {
     if (token) {
       window.location.href = `https://api.myfaredeal.us/authorize-payment?token=${token}`;

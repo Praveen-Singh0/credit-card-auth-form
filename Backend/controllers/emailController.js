@@ -17,7 +17,7 @@ const emailAccounts = {
   },
   "debra@myfaredeal.com": {
     user: "debra@myfaredeal.com",
-    pass: "afgh zpye trlf ydcz",
+    pass: "afgn zpye trlf ydcz",
   },
   "ruben@myfaredeal.com": {
     user: "ruben@myfaredeal.com",
@@ -81,6 +81,9 @@ const authorizePayment = async (req, res) => {
   const { token } = req.query;
 
   if (token && tokenStore[token]) {
+
+    console.log(`Token received: ${token}`);
+
     const { data, timestamp } = tokenStore[token];
 
     const getIp = (req) => {
