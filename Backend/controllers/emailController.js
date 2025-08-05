@@ -1205,7 +1205,7 @@ ${
           • ${data.companyName} may charge refund/change fees<br />
         </div>
 
-<div style="margin-top: 10px;">
+<div style="margin-top: 20px;">
   <div style=" margin: 0 auto;">
     <div style="margin-bottom: 32px;">
       <p style="color: #374151; font-size: 18px; font-weight: 600; margin-bottom: 24px;">Regards,</p>

@@ -1072,8 +1072,7 @@ ${
 
 
 
-     <!-- Regards Section -->.  
-<div style="margin-top: 50px;">
+<div style="margin-top: 10px;">
   <div style=" margin: 0 auto;">
     <div style="margin-bottom: 32px;">
       <p style="color: #374151; font-size: 18px; font-weight: 600; margin-bottom: 24px;">Regards,</p>

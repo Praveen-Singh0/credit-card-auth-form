@@ -300,10 +300,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center py-10">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center py-5">
       <div className="w-full max-w-5xl bg-white shadow-2xl rounded-2xl overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold"></h1>
             <div className="text-right">
@@ -332,9 +332,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="p-8">
+        <div className="p-8 bg-gradient-to-br from-gray-200 to-indigo-100">
           <div className="text-center mb-10">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            <h2 className="text-4xl  text-gray-800 mb-4">
               Credit Card Authorization Form
             </h2>
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 mx-auto mb-4"></div>
