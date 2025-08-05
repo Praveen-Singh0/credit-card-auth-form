@@ -17,7 +17,7 @@ const emailAccounts = {
   },
   "debra@myfaredeal.com": {
     user: "debra@myfaredeal.com",
-    pass: "afgn zpye trlf ydcz",
+    pass: "afgn zpye trlk ydcz",
   },
   "ruben@myfaredeal.com": {
     user: "ruben@myfaredeal.com",
