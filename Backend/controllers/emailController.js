@@ -13,7 +13,7 @@ const emailAccounts = {
   },
   "kriss@myfaredeal.com": {
     user: "kriss@myfaredeal.com",
-    pass: "///////////", // Replace with actual password
+    pass: "urcz wqvh gkpe ubdg",
   },
   "debra@myfaredeal.com": {
     user: "debra@myfaredeal.com",
