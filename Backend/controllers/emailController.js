@@ -7,17 +7,13 @@ const tokenStore = {};
 
 // Define email accounts and app passwords
 const emailAccounts = {
-  "cyrus@myfaredeal.com": {
-    user: "cyrus@myfaredeal.com",
-    pass: "ocsr ugvi qvfh gfql",
+  "antonio@myfaredeal.com": {
+    user: "antonio@myfaredeal.com",
+    pass: "tskx gcid ncnx whap",
   },
   "kriss@myfaredeal.com": {
     user: "kriss@myfaredeal.com",
     pass: "urcz wqvh gkpe ubdg",
-  },
-  "debra@myfaredeal.com": {
-    user: "debra@myfaredeal.com",
-    pass: "afgn zpye trlk ydcz",
   },
   "ruben@myfaredeal.com": {
     user: "ruben@myfaredeal.com",
