@@ -19,6 +19,14 @@ const emailAccounts = {
     user: "ruben@myfaredeal.com",
     pass: "gruq klrs qoca ogtl",
   },
+   "maria@myfaredeal.com" : {
+    user: "maria@myfaredeal.com",
+    pass: "nkhq zlqx uccl wbmm",
+  },
+    "sid@myfaredeal.com" : {
+    user: "sid@myfaredeal.com",
+    pass: "fxid bcsy klzg rqwf",
+  },
    "sandeepnegi2016@gmail.com": {
     user: "sandeepnegi2016@gmail.com",
     pass: "oadv fzvd xuif ytef",
