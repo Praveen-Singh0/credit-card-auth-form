@@ -27,6 +27,10 @@ const emailAccounts = {
     user: "sid@myfaredeal.com",
     pass: "fxid bcsy klzg rqwf",
   },
+   "mario@myfaredeal.com" : {
+    user: "mario@myfaredeal.com",
+    pass: "yhff vpuz slkh ymlo",
+  },
    "sandeepnegi2016@gmail.com": {
     user: "sandeepnegi2016@gmail.com",
     pass: "oadv fzvd xuif ytef",
