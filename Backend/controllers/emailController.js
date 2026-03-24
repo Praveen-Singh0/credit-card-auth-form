@@ -1,6 +1,146 @@
 const nodemailer = require("nodemailer");
 const generateEmailTemplate = require("../emailTemplate");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
+const PDFDocument = require("pdfkit");
+const path = require("path");
+const fs = require("fs");
+
+// Connect to MongoDB (same DB as CRM)
+mongoose.connect("mongodb://localhost:27017/farebulk")
+  .then(() => console.log("Auth Form: MongoDB connected"))
+  .catch((err) => console.error("Auth Form: MongoDB connection error:", err));
+
+  const currencySymbols = {
+  USD: "$",
+  INR: "₹",
+  EUR: "€",
+  GBP: "£",
+  CAD: "C$",
+  AUD: "A$"
+};
+
+// Import AuthRecord model directly (same schema as CRM)
+const authRecordSchema = new mongoose.Schema({
+  agentName: { type: String, required: true },
+  agentEmail: { type: String, default: "bookings@myfaredeal.com" },
+  customerEmail: { type: String, required: true },
+  cardholderName: { type: String, required: true },
+  contactNo: { type: String, default: "" },
+  bookingReference: { type: String, default: "" },
+  companyName: { type: String, default: "" },
+  passengers: [{ type: String }],
+  cardType: { type: String, default: "" },
+  cardLast4: { type: String, default: "" },
+  expiryDate: { type: String, default: "" },
+  amount: { type: String, default: "" },
+  chargeDescription: { type: mongoose.Schema.Types.Mixed, default: [] },
+  chargeBreakdown: { type: mongoose.Schema.Types.Mixed, default: [] },
+  status: { type: String, enum: ["sent", "authorized", "expired"], default: "sent" },
+  token: { type: String, required: true, unique: true },
+  sentAt: { type: Date, default: Date.now },
+  authorizedAt: { type: Date, default: null },
+  customerIP: { type: String, default: "" },
+  pdfPath: { type: String, default: "" },
+}, { timestamps: true });
+
+const AuthRecord = mongoose.models.AuthRecord || mongoose.model("AuthRecord", authRecordSchema);
+
+// PDF directory
+const PDF_DIR = path.join(__dirname, "..", "pdfs");
+if (!fs.existsSync(PDF_DIR)) fs.mkdirSync(PDF_DIR, { recursive: true });
+
+// Generate authorization PDF
+const generateAuthPDF = (data, ipAddress) => {
+  return new Promise((resolve, reject) => {
+    const fileName = `auth_${data.cardholderName.replace(/[^a-zA-Z0-9]/g, "_")}_${Date.now()}.pdf`;
+    const filePath = path.join(PDF_DIR, fileName);
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+
+    // Header
+    doc.fontSize(22).font("Helvetica-Bold").fillColor("#1a365d")
+      .text("CREDIT CARD AUTHORIZATION", { align: "center" });
+    doc.moveDown(0.3);
+    doc.fontSize(12).font("Helvetica").fillColor("#4a5568")
+      .text("Payment Authorization Confirmation", { align: "center" });
+    doc.moveDown(0.5);
+    doc.strokeColor("#3182ce").lineWidth(2)
+      .moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    doc.moveDown(1);
+
+    // Status badge
+    doc.fontSize(14).font("Helvetica-Bold").fillColor("#276749")
+      .text("✓ AUTHORIZED", { align: "center" });
+    doc.moveDown(1);
+
+    // Section: Customer Details
+    const addSection = (title) => {
+      doc.moveDown(0.5);
+      doc.fontSize(13).font("Helvetica-Bold").fillColor("#2d3748").text(title);
+      doc.strokeColor("#e2e8f0").lineWidth(1)
+        .moveTo(50, doc.y + 3).lineTo(545, doc.y + 3).stroke();
+      doc.moveDown(0.5);
+    };
+
+    const addRow = (label, value) => {
+      doc.fontSize(10).font("Helvetica-Bold").fillColor("#4a5568").text(label + ": ", { continued: true })
+        .font("Helvetica").fillColor("#1a202c").text(value || "N/A");
+      doc.moveDown(0.3);
+    };
+
+    addSection("Customer Information");
+    addRow("Cardholder Name", data.cardholderName);
+    addRow("Email", data.customerEmail);
+    addRow("Contact", data.contactNo);
+    if (data.passengers && data.passengers.length) {
+      addRow("Passengers", data.passengers.join(", "));
+    }
+
+    addSection("Booking Details");
+    addRow("Booking Reference", data.bookingReference);
+    addRow("Merchant", data.companyName);
+
+    // Charge details
+    if (data.chargeDescription && Array.isArray(data.chargeDescription)) {
+      addSection("Charge Details");
+      data.chargeDescription.forEach((item, i) => {
+        const desc = item.description || item.serviceDescription || ("Charge " + (i + 1));
+        const amt = item.amount || "$0.00";
+        addRow(desc, amt);
+      });
+    }
+    if (data.amount) {
+      addRow(
+  "Total Amount",
+  `${data.currency || "USD"} ${currencySymbols[data.currency] || "$"}${data.amount}`
+);
+    }
+
+    addSection("Card Information");
+    addRow("Card Type", data.cardType);
+    addRow("Card Number", "**** **** **** " + (data.cardNumber ? data.cardNumber.slice(-4) : "****"));
+    addRow("Expiry Date", data.expiryDate);
+
+    addSection("Authorization Details");
+    addRow("Authorization Date", new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+    addRow("Customer IP", ipAddress);
+    addRow("Agent", data.name || "N/A");
+
+    doc.moveDown(1.5);
+    doc.strokeColor("#3182ce").lineWidth(1)
+      .moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    doc.moveDown(0.5);
+    doc.fontSize(9).font("Helvetica").fillColor("#718096")
+      .text("This document confirms that the cardholder has authorized the above charges.", { align: "center" });
+    doc.text("Generated automatically by the Credit Card Authorization System.", { align: "center" });
+
+    doc.end();
+    stream.on("finish", () => resolve(filePath));
+    stream.on("error", reject);
+  });
+};
 
 // In-memory store for tokens. In a real app, use a database.
 const tokenStore = {};
@@ -45,29 +185,24 @@ const sendEmail = async (req, res) => {
 
   // Generate a unique token
   const token = crypto.randomBytes(20).toString("hex");
+
+  // Always use bookings@myfaredeal.com as sender, only keep agent name
+  data.email = "bookings@myfaredeal.com";
   tokenStore[token] = { data, timestamp: Date.now() }; // Store form data with token
-
-  const senderEmail = data.email;
-
-  // Check if the email is in your allowed list
-  if (!emailAccounts[senderEmail]) {
-    return res.status(400).json({ message: "Unauthorized sender email" });
-  }
-
-  const { user, pass } = emailAccounts[senderEmail];
 
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
     auth: {
-      user,
-      pass,
+      user: "bookings@myfaredeal.com",
+      pass: "fiul eiyk cjfr lmbu",
     },
   });
 
   const mailOptions = {
-    from: user,
+    from: '"Booking Desk" <bookings@myfaredeal.com>',
+    replyTo: "bookings@myfaredeal.com",
     to: data.customerEmail,
     subject: "Credit Card Authorization Request",
     html: generateEmailTemplate(data).replace("YOUR_UNIQUE_TOKEN", token),
@@ -78,6 +213,34 @@ const sendEmail = async (req, res) => {
     console.log(
       `Authorization email sent to ${data.customerEmail} with token: ${token}`
     );
+
+    // Save auth record to MongoDB
+    try {
+      const authRecord = new AuthRecord({
+        agentName: data.name || "Unknown Agent",
+        agentEmail: data.email || "bookings@myfaredeal.com",
+        customerEmail: data.customerEmail,
+        cardholderName: data.cardholderName,
+        contactNo: data.contactNo || "",
+        bookingReference: data.bookingReference || "",
+        companyName: data.companyName || "",
+        passengers: data.passengers || [],
+        cardType: data.cardType || "",
+        cardLast4: data.cardNumber ? data.cardNumber.slice(-4) : "",
+        expiryDate: data.expiryDate || "",
+        amount: data.amount || "",
+        chargeDescription: data.chargeDescription || [],
+        chargeBreakdown: data.chargeBreakdown || [],
+        status: "sent",
+        token: token,
+        sentAt: new Date(),
+      });
+      await authRecord.save();
+      console.log("Auth record saved to MongoDB");
+    } catch (dbErr) {
+      console.error("Failed to save auth record to DB:", dbErr);
+    }
+
     res.status(200).send({ message: "Authorization email sent successfully" });
   } catch (error) {
     console.error("Error sending email:", error);
@@ -329,7 +492,7 @@ const authorizePayment = async (req, res) => {
       service: "gmail",
       auth: {
         user: "bookings@myfaredeal.com",
-        pass: "fzfm gnop pvrm prgm",
+        pass: "fiul eiyk cjfr lmbu",
       },
     });
 
@@ -1058,7 +1221,7 @@ ${
     <thead>
       <tr style="background: #1e40af;">
         <th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 120px;">Merchant Name</th>
-        <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount (USD)</th>
+        <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount</th>
       </tr>
     </thead>
     <tbody>
@@ -1152,7 +1315,7 @@ ${
                 }</strong>, 
                 authorize <strong>${
                   data.companyName || "the merchant"
-                }</strong> to charge <strong>USD $${data.amount}</strong> 
+                }</strong> to charge <strong>${data.currency || "USD"} ${currencySymbols[data.currency] || "$"}${data.amount}</strong> 
                 to the above credit card for <strong>${
                   data.serviceDetails
                 }</strong>.
@@ -1309,8 +1472,8 @@ ${
 
     const adminMailOptions = {
       from: "bookings@myfaredeal.com",
-      to: `${data.email}, arun@farebulk.com, sam@farebulk.com, sandeepnegi2013@gmail.com`,
-      subject: "Payment Authorized by CustomerF",
+      to: `${data.email}, sam@farebulk.com`,
+      subject: "Payment Authorized by Customer",
       html: adminHtml,
     };
 
@@ -1319,6 +1482,25 @@ ${
       console.log("Admin notified of authorized payment.");
     } catch (err) {
       console.error("Failed to send admin notification:", err);
+    }
+
+    // Update auth record in MongoDB and generate PDF
+    try {
+      const pdfPath = await generateAuthPDF(data, ipAddress);
+      await AuthRecord.findOneAndUpdate(
+        { token },
+        {
+          $set: {
+            status: "authorized",
+            authorizedAt: new Date(),
+            customerIP: ipAddress,
+            pdfPath: pdfPath,
+          },
+        }
+      );
+      console.log("Auth record updated to authorized with PDF:", pdfPath);
+    } catch (dbErr) {
+      console.error("Failed to update auth record in DB:", dbErr);
     }
 
     delete tokenStore[token];

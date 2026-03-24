@@ -29,6 +29,7 @@ export default function Home() {
     authorization: false,
     cardType: "",
     companyName: "",
+    currency: "USD",
   });
 
   const [errors, setErrors] = useState({});
@@ -116,7 +117,7 @@ export default function Home() {
     }
     return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(
       3,
-      6
+      6,
     )}-${phoneNumber.slice(6, 10)}`;
   };
 
@@ -275,7 +276,7 @@ export default function Home() {
 
     try {
       const response = await fetch("https://api.myfaredeal.us/send-email", {
-      // const response = await fetch("http://localhost:3081/send-email", {
+        // const response = await fetch("http://localhost:3081/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -286,7 +287,14 @@ export default function Home() {
       if (response.ok) {
         const result = await response.json();
         console.log("Server response:", result);
-        alert("Form submitted successfully!");
+        alert("Authorization email sent successfully!");
+        // Close this tab and return to CRM
+        window.close();
+        // Fallback if window.close() is blocked by browser
+        setTimeout(() => {
+          window.location.href =
+            "https://crm.farebulk.com/dashboard/auth-records";
+        }, 500);
       } else {
         console.error("Server error:", response.statusText);
         alert("Failed to submit the form. Please try again.");
@@ -564,7 +572,7 @@ export default function Home() {
                       >
                         {type}
                       </button>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -751,7 +759,7 @@ export default function Home() {
                 <div className="font-semibold text-gray-700">
                   Merchant Name(s)
                 </div>
-                <div className="font-semibold text-gray-700">Amount (USD)</div>
+                <div className="font-semibold text-gray-700">Amount</div>
                 <div></div>
 
                 {chargeBreakdown.map((item, idx) => (
@@ -764,7 +772,7 @@ export default function Home() {
                             handleChargeBreakdownChange(
                               idx,
                               "merchant",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -772,6 +780,12 @@ export default function Home() {
                           <option value="">Select Merchant</option>
                           <option value="Myfaredeal">Myfaredeal</option>
                           <option value="Farebulk">Farebulk</option>
+                          <option value="1travelshop LLC">
+                            1travelshop LLC
+                          </option>
+                          <option value="Flight Champ LLC">
+                            Flight Champ LLC
+                          </option>
                         </select>
                       ) : (
                         <input
@@ -781,7 +795,7 @@ export default function Home() {
                             handleChargeBreakdownChange(
                               idx,
                               "merchant",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -798,7 +812,7 @@ export default function Home() {
                           handleChargeBreakdownChange(
                             idx,
                             "amount",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -834,7 +848,7 @@ export default function Home() {
                   <div className="space-y-4 transition-all duration-300 ease-in-out">
                     {chargeDesc.map((item, idx) => {
                       const descriptionKey = Object.keys(item).find((key) =>
-                        key.startsWith("description_")
+                        key.startsWith("description_"),
                       );
 
                       return (
@@ -846,7 +860,7 @@ export default function Home() {
                                   Description
                                 </div>
                                 <div className="font-semibold text-gray-700">
-                                  Amount (USD)
+                                  Amount
                                 </div>
                                 <div></div>
                               </>
@@ -860,7 +874,7 @@ export default function Home() {
                                   handleChargeDescChange(
                                     idx,
                                     descriptionKey,
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -876,7 +890,7 @@ export default function Home() {
                                   handleChargeDescChange(
                                     idx,
                                     "amount",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -916,7 +930,29 @@ export default function Home() {
 
             {/* Charge Details */}
             <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label
+                    htmlFor="currency"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    Currency *
+                  </label>
+
+                  <select
+                    id="currency"
+                    value={formData.currency}
+                    onChange={handleChange}
+                    className="text-black w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="USD">$ USD</option>
+                    <option value="INR">₹ INR</option>
+                    <option value="EUR">€ EUR</option>
+                    <option value="GBP">£ GBP</option>
+                    <option value="CAD">C$ CAD</option>
+                    <option value="AUD">A$ AUD</option>
+                  </select>
+                </div>{" "}
                 <div>
                   <label
                     htmlFor="amount"
@@ -926,7 +962,12 @@ export default function Home() {
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg font-semibold">
-                      $
+                      {formData.currency === "USD" && "$"}
+                      {formData.currency === "INR" && "₹"}
+                      {formData.currency === "EUR" && "€"}
+                      {formData.currency === "GBP" && "£"}
+                      {formData.currency === "CAD" && "C$"}
+                      {formData.currency === "AUD" && "A$"}
                     </span>
                     <input
                       type="text"
@@ -986,6 +1027,8 @@ export default function Home() {
                       <option value="">Select Merchant</option>
                       <option value="Myfaredeal">Myfaredeal</option>
                       <option value="Farebulk">Farebulk</option>
+                      <option value="1travelshop LLC">1travelshop LLC</option>
+                      <option value="Flight Champ LLC">Flight Champ LLC</option>
                     </select>
                     {/* Custom dropdown arrow */}
                     <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
@@ -1020,7 +1063,7 @@ export default function Home() {
                     to charge my above card for USD
                     <span className="font-bold text-green-600">
                       {" "}
-                      ${formData.amount || " [AMOUNT]"}{" "}
+                      {formData.amount || " [AMOUNT]"}{" "}
                     </span>{" "}
                     for{" "}
                     <span className="font-bold text-blue-600">
