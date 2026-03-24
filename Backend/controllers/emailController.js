@@ -145,40 +145,6 @@ const generateAuthPDF = (data, ipAddress) => {
 // In-memory store for tokens. In a real app, use a database.
 const tokenStore = {};
 
-// Define email accounts and app passwords
-const emailAccounts = {
-  "antonio@myfaredeal.com": {
-    user: "antonio@myfaredeal.com",
-    pass: "tskx gcid ncnx whap",
-  },
-  "kriss@myfaredeal.com": {
-    user: "kriss@myfaredeal.com",
-    pass: "urcz wqvh gkpe ubdg",
-  },
-  "ruben@myfaredeal.com": {
-    user: "ruben@myfaredeal.com",
-    pass: "gruq klrs qoca ogtl",
-  },
-   "maria@myfaredeal.com" : {
-    user: "maria@myfaredeal.com",
-    pass: "nkhq zlqx uccl wbmm",
-  },
-    "sid@myfaredeal.com" : {
-    user: "sid@myfaredeal.com",
-    pass: "fxid bcsy klzg rqwf",
-  },
-   "mario@myfaredeal.com" : {
-    user: "mario@myfaredeal.com",
-    pass: "yhff vpuz slkh ymlo",
-  },
-   "sandeepnegi2016@gmail.com": {
-    user: "sandeepnegi2016@gmail.com",
-    pass: "oadv fzvd xuif ytef",
-  },
-
-  
-};
-
 const sendEmail = async (req, res) => {
   const data = req.body;
   console.log("Form data received in controller:", data);

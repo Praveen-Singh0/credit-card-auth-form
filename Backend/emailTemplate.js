@@ -6,29 +6,54 @@ const generateEmailTemplate = (data) => {
           .join("")
       : '<li style="margin: 5px 0; color: #6b7280;">No passengers listed</li>';
 
+  const getCurrencySymbol = (currency) => {
+    const map = {
+      USD: "$",
+      INR: "₹",
+      EUR: "€",
+      GBP: "£",
+      CAD: "C$",
+      AUD: "A$",
+    };
+    return map[currency] || "$";
+  };
+
+  const formatCurrency = (amount, currency) => {
+    return `${currency} ${getCurrencySymbol(currency)}${parseFloat(amount || 0).toFixed(2)}`;
+  };
+
   // Analyze flight summary content to determine container size
   const analyzeFlightSummary = (htmlContent) => {
     if (!htmlContent || htmlContent.trim() === "") {
-      return { hasContent: false, contentLength: 0, hasTables: false, hasLongText: false };
+      return {
+        hasContent: false,
+        contentLength: 0,
+        hasTables: false,
+        hasLongText: false,
+      };
     }
-    
+
     // Remove HTML tags to get text length
-    const textContent = htmlContent.replace(/<[^>]*>/g, '');
+    const textContent = htmlContent.replace(/<[^>]*>/g, "");
     const contentLength = textContent.length;
-    
+
     // Check for tables
-    const hasTables = htmlContent.includes('<table') || htmlContent.includes('<tr') || htmlContent.includes('<td');
-    
+    const hasTables =
+      htmlContent.includes("<table") ||
+      htmlContent.includes("<tr") ||
+      htmlContent.includes("<td");
+
     // Check for long text (more than 500 characters)
     const hasLongText = contentLength > 500;
-    
+
     // Check for multiple paragraphs or complex structure
     const paragraphCount = (htmlContent.match(/<p[^>]*>/g) || []).length;
     const listCount = (htmlContent.match(/<[uo]l[^>]*>/g) || []).length;
     const headingCount = (htmlContent.match(/<h[1-6][^>]*>/g) || []).length;
-    
-    const isComplex = paragraphCount > 3 || listCount > 1 || headingCount > 2 || hasTables;
-    
+
+    const isComplex =
+      paragraphCount > 3 || listCount > 1 || headingCount > 2 || hasTables;
+
     return {
       hasContent: true,
       contentLength,
@@ -37,35 +62,42 @@ const generateEmailTemplate = (data) => {
       isComplex,
       paragraphCount,
       listCount,
-      headingCount
+      headingCount,
     };
   };
 
   const flightSummaryAnalysis = analyzeFlightSummary(data.flightSummary);
-  
+
   // Determine container size based on flight summary content
   let containerWidth, containerFontSize, containerClass;
-  
-  if (!flightSummaryAnalysis.hasContent || flightSummaryAnalysis.contentLength < 100) {
+
+  if (
+    !flightSummaryAnalysis.hasContent ||
+    flightSummaryAnalysis.contentLength < 100
+  ) {
     // Minimal content - smaller size
-    containerWidth = '650px';
-    containerFontSize = 'medium';
-    containerClass = 'container-medium';
-  } else if (flightSummaryAnalysis.isComplex || flightSummaryAnalysis.hasTables || flightSummaryAnalysis.contentLength > 1000) {
+    containerWidth = "650px";
+    containerFontSize = "medium";
+    containerClass = "container-medium";
+  } else if (
+    flightSummaryAnalysis.isComplex ||
+    flightSummaryAnalysis.hasTables ||
+    flightSummaryAnalysis.contentLength > 1000
+  ) {
     // Complex content or long text - very small container
-    containerWidth = '500px';
-    containerFontSize = 'small';
-    containerClass = 'container-small';
+    containerWidth = "500px";
+    containerFontSize = "small";
+    containerClass = "container-small";
   } else if (flightSummaryAnalysis.contentLength > 500) {
     // Medium content - small container
-    containerWidth = '550px';
-    containerFontSize = 'small';
-    containerClass = 'container-small';
+    containerWidth = "550px";
+    containerFontSize = "small";
+    containerClass = "container-small";
   } else {
     // Default - medium size
-    containerWidth = '650px';
-    containerFontSize = 'medium';
-    containerClass = 'container-medium';
+    containerWidth = "650px";
+    containerFontSize = "medium";
+    containerClass = "container-medium";
   }
 
   const cleanFlightSummary = (htmlContent) => {
@@ -76,49 +108,49 @@ const generateEmailTemplate = (data) => {
     // Remove any script tags for security
     const cleanHtml = htmlContent.replace(
       /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-      ""
+      "",
     );
 
     // Get font sizes based on container size
     const getFontSizes = () => {
-      if (containerFontSize === 'small') {
+      if (containerFontSize === "small") {
         return {
-          p: '10px',
-          h1: '14px',
-          h2: '12px',
-          h3: '11px',
-          li: '9px',
-          table: '9px',
-          td: '9px',
-          th: '9px',
-          pre: '9px',
-          code: '9px'
+          p: "10px",
+          h1: "14px",
+          h2: "12px",
+          h3: "11px",
+          li: "9px",
+          table: "9px",
+          td: "9px",
+          th: "9px",
+          pre: "9px",
+          code: "9px",
         };
-      } else if (containerFontSize === 'medium') {
+      } else if (containerFontSize === "medium") {
         return {
-          p: '12px',
-          h1: '16px',
-          h2: '14px',
-          h3: '12px',
-          li: '11px',
-          table: '11px',
-          td: '11px',
-          th: '11px',
-          pre: '11px',
-          code: '11px'
+          p: "12px",
+          h1: "16px",
+          h2: "14px",
+          h3: "12px",
+          li: "11px",
+          table: "11px",
+          td: "11px",
+          th: "11px",
+          pre: "11px",
+          code: "11px",
         };
       } else {
         return {
-          p: '14px',
-          h1: '20px',
-          h2: '16px',
-          h3: '14px',
-          li: '12px',
-          table: '12px',
-          td: '12px',
-          th: '12px',
-          pre: '12px',
-          code: '12px'
+          p: "14px",
+          h1: "20px",
+          h2: "16px",
+          h3: "14px",
+          li: "12px",
+          table: "12px",
+          td: "12px",
+          th: "12px",
+          pre: "12px",
+          code: "12px",
         };
       }
     };
@@ -130,70 +162,70 @@ const generateEmailTemplate = (data) => {
       cleanHtml
         .replace(
           /<p>/g,
-          `<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.p};">`
+          `<p style="margin: 0 0 10px 0; color: #374151; line-height: 1.6; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.p};">`,
         )
         .replace(
           /<h1>/g,
-          `<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: ${fontSizes.h1}; font-weight: 700; word-wrap: break-word; overflow-wrap: break-word;">`
+          `<h1 style="color: #1f2937; margin: 20px 0 10px 0; font-size: ${fontSizes.h1}; font-weight: 700; word-wrap: break-word; overflow-wrap: break-word;">`,
         )
         .replace(
           /<h2>/g,
-          `<h2 style="color: #1f2937; margin: 18px 0 8px 0; font-size: ${fontSizes.h2}; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word;">`
+          `<h2 style="color: #1f2937; margin: 18px 0 8px 0; font-size: ${fontSizes.h2}; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word;">`,
         )
         .replace(
           /<h3>/g,
-          `<h3 style="color: #1f2937; margin: 16px 0 6px 0; font-size: ${fontSizes.h3}; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word;">`
+          `<h3 style="color: #1f2937; margin: 16px 0 6px 0; font-size: ${fontSizes.h3}; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word;">`,
         )
         .replace(
           /<ul>/g,
-          '<ul style="margin: 10px 0; padding-left: 20px; color: #374151; word-wrap: break-word; overflow-wrap: break-word;">'
+          '<ul style="margin: 10px 0; padding-left: 20px; color: #374151; word-wrap: break-word; overflow-wrap: break-word;">',
         )
         .replace(
           /<ol>/g,
-          '<ol style="margin: 10px 0; padding-left: 20px; color: #374151; word-wrap: break-word; overflow-wrap: break-word;">'
+          '<ol style="margin: 10px 0; padding-left: 20px; color: #374151; word-wrap: break-word; overflow-wrap: break-word;">',
         )
         .replace(
           /<li>/g,
-          `<li style="margin: 5px 0; color: #374151; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.li};">`
+          `<li style="margin: 5px 0; color: #374151; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.li};">`,
         )
         .replace(
           /<strong>/g,
-          '<strong style="font-weight: 700; color: #1f2937;">'
+          '<strong style="font-weight: 700; color: #1f2937;">',
         )
         .replace(/<em>/g, '<em style="font-style: italic; color: #4b5563;">')
         .replace(
           /<a /g,
-          '<a style="color: #3b82f6; text-decoration: none; word-wrap: break-word; overflow-wrap: break-word;" '
+          '<a style="color: #3b82f6; text-decoration: none; word-wrap: break-word; overflow-wrap: break-word;" ',
         )
         .replace(
           /<img /g,
-          '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0; display: block;" '
+          '<img style="max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0; display: block;" ',
         )
         .replace(
           /<table>/g,
-          `<table style="width: 100%; max-width: 100%; border-collapse: collapse; margin: 15px 0; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.table};">`
+          `<table style="width: 100%; max-width: 100%; border-collapse: collapse; margin: 15px 0; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.table};">`,
         )
         .replace(
           /<td>/g,
-          `<td style="padding: 8px; border: 1px solid #e5e7eb; color: #374151; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; font-size: ${fontSizes.td};">`
+          `<td style="padding: 8px; border: 1px solid #e5e7eb; color: #374151; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; font-size: ${fontSizes.td};">`,
         )
         .replace(
           /<th>/g,
-          `<th style="padding: 8px; border: 1px solid #e5e7eb; background-color: #f3f4f6; color: #1f2937; font-weight: 600; text-align: left; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; font-size: ${fontSizes.th};">`
+          `<th style="padding: 8px; border: 1px solid #e5e7eb; background-color: #f3f4f6; color: #1f2937; font-weight: 600; text-align: left; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; font-size: ${fontSizes.th};">`,
         )
         .replace(
           /<div>/g,
-          '<div style="margin: 5px 0; word-wrap: break-word; overflow-wrap: break-word;">'
+          '<div style="margin: 5px 0; word-wrap: break-word; overflow-wrap: break-word;">',
         )
         .replace(/<br>/g, "<br/>")
         // Add specific handling for any remaining elements that might cause overflow
         .replace(
           /<pre>/g,
-          `<pre style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.pre}; overflow-x: auto;">`
+          `<pre style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.pre}; overflow-x: auto;">`,
         )
         .replace(
           /<code>/g,
-          `<code style="word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.code};">`
+          `<code style="word-wrap: break-word; overflow-wrap: break-word; font-size: ${fontSizes.code};">`,
         )
     );
   };
@@ -735,7 +767,7 @@ const generateEmailTemplate = (data) => {
     </head>
     <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; line-height: 1.6; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; overflow-x: hidden; min-width: ${containerWidth};">
       
-      <div class="container ${containerClass}" style="max-width: ${containerWidth}; font-size: ${containerFontSize === 'normal' ? '16px' : containerFontSize === 'medium' ? '14px' : '12px'};">
+      <div class="container ${containerClass}" style="max-width: ${containerWidth}; font-size: ${containerFontSize === "normal" ? "16px" : containerFontSize === "medium" ? "14px" : "12px"};">
         
         <!-- Header -->
         <div class="header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%); padding: 10px; text-align: center; position: relative;">
@@ -803,8 +835,8 @@ const generateEmailTemplate = (data) => {
             <h2 class="section-title" style="color: #1f2937; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
                Flight Summary
             </h2>
-            <div class="flight-summary-container" style="padding: ${containerFontSize === 'small' ? '0px' : containerFontSize === 'medium' ? '15px' : '18px'}; border-radius: 10px; border-left: 4px solid #f5e4b1ff; max-width: 100%; overflow-x: auto; word-wrap: break-word; overflow-wrap: break-word;">
-  <div class="flight-summary-content" style="color: #374151; font-size: ${containerFontSize === 'small' ? '10px' : containerFontSize === 'medium' ? '12px' : '14px'}; line-height: 1.6; word-break: break-word;">
+            <div class="flight-summary-container" style="padding: ${containerFontSize === "small" ? "0px" : containerFontSize === "medium" ? "15px" : "18px"}; border-radius: 10px; border-left: 4px solid #f5e4b1ff; max-width: 100%; overflow-x: auto; word-wrap: break-word; overflow-wrap: break-word;">
+  <div class="flight-summary-content" style="color: #374151; font-size: ${containerFontSize === "small" ? "10px" : containerFontSize === "medium" ? "12px" : "14px"}; line-height: 1.6; word-break: break-word;">
     ${cleanFlightSummary(data.flightSummary)}
   </div>
 </div>
@@ -816,60 +848,60 @@ const generateEmailTemplate = (data) => {
 
 <!-- Charge Description -->
 ${
-Array.isArray(data.chargeDescription) &&
-data.chargeDescription.some((item) => {
-  // Check for any description field or amount
-  const hasDescription = Object.keys(item).some(key => 
-    key.startsWith('description_') && item[key]
-  );
-  return hasDescription || item.amount;
-})
-? `
+  Array.isArray(data.chargeDescription) &&
+  data.chargeDescription.some((item) => {
+    // Check for any description field or amount
+    const hasDescription = Object.keys(item).some(
+      (key) => key.startsWith("description_") && item[key],
+    );
+    return hasDescription || item.amount;
+  })
+    ? `
 <div style="margin: 0 auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
 <table style="width: 100%; min-width: 320px; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 <thead>
 <tr style="background: #1e40af;">
 <th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 12px; border: none; min-width: 200px;">Description</th>
-<th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 12px; border: none; min-width: 120px;">Amount</th>
+<th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 12px; border: none; min-width: 120px;">Amount (${data.currency})</th>
 </tr>
 </thead>
 <tbody>
 ${data.chargeDescription
-.map((item, index) => {
-  // Find the first available description field dynamically
-  let description = "Service Charge";
-  
-  // Look for description fields in order (description_1, description_2, etc.)
-  const descriptionKeys = Object.keys(item)
-    .filter(key => key.startsWith('description_'))
-    .sort((a, b) => {
-      const numA = parseInt(a.split('_')[1]) || 0;
-      const numB = parseInt(b.split('_')[1]) || 0;
-      return numA - numB;
-    });
-  
-  // Use the first non-empty description found
-  for (const key of descriptionKeys) {
-    if (item[key] && item[key].trim()) {
-      description = item[key];
-      break;
+  .map((item, index) => {
+    // Find the first available description field dynamically
+    let description = "Service Charge";
+
+    // Look for description fields in order (description_1, description_2, etc.)
+    const descriptionKeys = Object.keys(item)
+      .filter((key) => key.startsWith("description_"))
+      .sort((a, b) => {
+        const numA = parseInt(a.split("_")[1]) || 0;
+        const numB = parseInt(b.split("_")[1]) || 0;
+        return numA - numB;
+      });
+
+    // Use the first non-empty description found
+    for (const key of descriptionKeys) {
+      if (item[key] && item[key].trim()) {
+        description = item[key];
+        break;
+      }
     }
-  }
-  
-  let amount = item.amount || "$0.00";
-  description = description.replace(/\t+/g, " ").trim();
-  
-  const isLastItem = index === data.chargeDescription.length - 1;
-  
-  if (isLastItem) {
-    return `
+
+    let amount = formatCurrency(item.amount || 0, data.currency);
+    description = description.replace(/\t+/g, " ").trim();
+
+    const isLastItem = index === data.chargeDescription.length - 1;
+
+    if (isLastItem) {
+      return `
 <tr style="background: #fef3c7; border-top: 2px solid #f59e0b;">
 <td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 10px; border: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${description}</td>
 <td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 10px; text-align: right; border: none; word-break: break-word;">${amount}</td>
 </tr>
 `;
-  } else {
-    return `
+    } else {
+      return `
 <tr style="background: ${index % 2 === 0 ? "#f8fafc" : "#ffffff"};">
 <td style="padding: 12px 16px; color: #374151; font-weight: 600; font-size: 15px; border: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
 ${description}
@@ -879,14 +911,14 @@ ${amount}
 </td>
 </tr>
 `;
-  }
-})
-.join("")}
+    }
+  })
+  .join("")}
 </tbody>
 </table>
 </div>
 `
-: ""
+    : ""
 }
 
 
@@ -905,7 +937,7 @@ ${
     <thead>
       <tr style="background: #1e40af;">
         <th style="padding: 12px 16px; text-align: left; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 120px;">Merchant Name</th>
-        <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount (USD)</th>
+        <th style="padding: 12px 16px; text-align: right; color: #ffffff; font-weight: 600; font-size: 14px; border: none; min-width: 100px;">Amount</th>
       </tr>
     </thead>
     <tbody>
@@ -921,7 +953,7 @@ ${
                 ${charge.merchant}
               </td>
               <td style="padding: 16px 16px; color: #92400e; font-weight: 700; font-size: 14px; text-align: right; border: none;">
-                $${parseFloat(charge.amount || 0).toFixed(2)}
+${formatCurrency(charge.amount, data.currency)}
               </td>
             </tr>
             `;
@@ -932,7 +964,7 @@ ${
                 ${charge.merchant || "Service Provider"}
               </td>
               <td style="padding: 12px 16px; color: #374151; font-weight: 500; font-size: 14px; text-align: right; border: none; white-space: nowrap;">
-                $${parseFloat(charge.amount || 0).toFixed(2)}
+${formatCurrency(charge.amount, data.currency)}
               </td>
             </tr>
             `;
@@ -970,7 +1002,7 @@ ${
                 <tr>
                   <td style="padding: 10px 0; color: #166534; font-weight: 600; vertical-align: top;">Card Number:</td>
                   <td style="padding: 10px 0; color: #1f2937; font-weight: 500; font-family: monospace;">**** **** **** ${data.cardNumber.slice(
-                    -4
+                    -4,
                   )}</td>
                 </tr>
                 <tr>
@@ -998,7 +1030,7 @@ ${
                 }</strong>, 
                 authorize <strong>${
                   data.companyName || "the merchant"
-                }</strong> to charge <strong>USD $${data.amount}</strong> 
+                }</strong> to charge <strong>${formatCurrency(data.amount, data.currency)}</strong> 
                 to the above credit card for <strong>${
                   data.serviceDetails
                 }</strong>.
@@ -1042,12 +1074,12 @@ ${
           These terms and conditions ("terms of use") apply to you right the moment you access and use ${
             data.companyName
           }: its services, products, and contents. This is a legal agreement between you and ${
-    data.companyName
-  }.<br />
+            data.companyName
+          }.<br />
           Travelers First name and Last name must match government-issued ID.<br />
           <strong>Fare Policy</strong><br />
           • ${data.companyName} accepts Debit Cards and Credit Cards<br />
-          • All prices are in USD<br />
+          • All prices are in ${data.currency}<br />
           • Ticket fares do not include baggage fees<br />
           <strong>Payment Policy</strong><br />
           • Ticket is not guaranteed until issued<br />
@@ -1161,8 +1193,8 @@ ${
          
           <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px; line-height: 1.4;">
             © ${new Date().getFullYear()} ${
-    data.companyName || "Your Merchant"
-  }. All rights reserved.
+              data.companyName || "Your Merchant"
+            }. All rights reserved.
           </p>
         </div>
 
