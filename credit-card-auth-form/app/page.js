@@ -1217,13 +1217,13 @@ export default function Home() {
                   <p className="leading-relaxed mb-3">
                     All Tickets are not guaranteed until ticketed. The fare may
                     alter as revised by the Airline company or matter anytime
-                    even after the confirmation of a reservation. Myfaredeal
+                    even after the confirmation of a reservation. {formData.companyName || "MERCHANT NAME"},
                     will inform you about the fare changes if made without
                     assuming and responsibility- financial or otherwise for any
                     such fare alters made by the supplier.
                   </p>
                   <p className="leading-relaxed">
-                    Myfaredeal will inform you about the new fares. At that
+                    {formData.companyName || "MERCHANT NAME"}, will inform you about the new fares. At that
                     point of time you may- depending on your requirement- either
                     purchase or cancel the product or service at the new cost.
                     You also can cancel the booking at no cost in case there is
@@ -1241,7 +1241,7 @@ export default function Home() {
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Myfaredeal accepts Debit Cards and Credit Cards.
+                      {formData.companyName || "MERCHANT NAME"}, accepts Debit Cards and Credit Cards.
                     </li>
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -1249,7 +1249,7 @@ export default function Home() {
                     </li>
                     <li className="flex items-start">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Myfaredeal may divide your total charge into two parts:
+                      {formData.companyName || "MERCHANT NAME"}, may divide your total charge into two parts:
                       Taxes and Airline Base. But, the combined total amount
                       will be the same as authorized and quoted by you at the
                       time of booking.
@@ -1330,8 +1330,8 @@ export default function Home() {
                     exchanged for the original purchase price after the
                     deduction of applicable airline penalties, and any fare
                     difference between the original fares paid and the fare
-                    associated with the new ticket(s). Furthermore, Myfaredeal
-                    has the right to change a Charge/Refund fees. Myfaredeal has
+                    associated with the new ticket(s). Furthermore, {formData.companyName || "MERCHANT NAME" },  
+                    has the right to change a Charge/Refund fees. {formData.companyName || "MERCHANT NAME"}, has
                     no control over airline penalties associated with refunds or
                     exchanges.
                   </p>
